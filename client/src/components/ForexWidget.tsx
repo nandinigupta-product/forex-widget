@@ -1,6 +1,6 @@
 import * as React from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { ArrowRight, RefreshCw, Zap, Shield, TrendingDown, Clock, Users, Timer } from "lucide-react";
+import { motion } from "framer-motion";
+import { ArrowRight, RefreshCw, Zap, Shield, TrendingDown, Clock, Timer } from "lucide-react";
 import { useLocation, useSearch } from "wouter";
 import { useToast } from "@/hooks/use-toast";
 import { useRates, useCreateLead } from "@/hooks/use-forex";
@@ -8,22 +8,6 @@ import { useRates, useCreateLead } from "@/hooks/use-forex";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { CitySelector } from "./CitySelector";
-
-function useLiveViewers() {
-  const [viewers, setViewers] = React.useState(0);
-  React.useEffect(() => {
-    const base = Math.floor(Math.random() * 8) + 14;
-    setViewers(base);
-    const interval = setInterval(() => {
-      setViewers((v) => {
-        const delta = Math.random() > 0.5 ? 1 : -1;
-        return Math.max(8, Math.min(35, v + delta));
-      });
-    }, 4000);
-    return () => clearInterval(interval);
-  }, []);
-  return viewers;
-}
 
 function useCountdown() {
   const [minutes, setMinutes] = React.useState(14);
@@ -63,7 +47,6 @@ export function ForexWidget() {
   const { mutate: createLead, isPending } = useCreateLead();
   const { toast } = useToast();
 
-  const viewers = useLiveViewers();
   const countdown = useCountdown();
 
   const selectedRate = ratesData?.rates.find((r) => r.currency === currency);
@@ -132,23 +115,6 @@ export function ForexWidget() {
         <div className="bg-[#093562] px-5 pt-6 pb-4 rounded-t-md">
           <h2 className="text-lg font-semibold text-white" data-testid="text-widget-title">Buy Forex Online</h2>
           <p className="text-blue-200 text-xs mt-0.5">Best rates guaranteed, delivered to your door.</p>
-
-          <div className="flex items-center gap-3 mt-3">
-            <div className="flex items-center gap-1.5 bg-white/10 rounded-full px-2.5 py-1" data-testid="live-viewers">
-              <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75" />
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-green-400" />
-              </span>
-              <Users className="w-3 h-3 text-green-300" />
-              <span className="text-[11px] text-green-300 font-medium">{viewers} viewing now</span>
-            </div>
-            <div className="flex items-center gap-1 bg-white/10 rounded-full px-2.5 py-1" data-testid="rate-countdown">
-              <Timer className="w-3 h-3 text-yellow-300" />
-              <span className="text-[11px] text-yellow-300 font-mono font-medium">
-                {String(countdown.minutes).padStart(2, '0')}:{String(countdown.seconds).padStart(2, '0')}
-              </span>
-            </div>
-          </div>
         </div>
 
         <div className="p-5">
