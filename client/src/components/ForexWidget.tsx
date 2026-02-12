@@ -144,7 +144,7 @@ export function ForexWidget() {
                   min="1"
                   value={amount}
                   onChange={(e) => setAmount(e.target.value ? Number(e.target.value) : "")}
-                  className="w-full h-12 rounded-md bg-white border border-gray-300 text-base font-semibold pl-3 pr-3 focus:outline-none focus:ring-2 focus:ring-[#093562]/30 focus:border-[#093562]"
+                  className="w-full h-12 rounded-md bg-white border border-gray-300 text-base font-semibold pl-3 pr-3 focus:outline-none focus:ring-2 focus:ring-[#093562]/30 focus:border-[#093562] [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                   data-testid="input-amount"
                 />
                 {selectedRate && activeRate > 0 && (
