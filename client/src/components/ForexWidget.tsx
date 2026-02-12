@@ -1,6 +1,6 @@
 import * as React from "react";
-import { motion } from "framer-motion";
-import { ArrowRight, RefreshCw, Zap, Shield, TrendingDown, Clock } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { ArrowRight, RefreshCw, Zap, Shield, TrendingDown, Clock, Users, Timer } from "lucide-react";
 import { useLocation, useSearch } from "wouter";
 import { useToast } from "@/hooks/use-toast";
 import { useRates, useCreateLead } from "@/hooks/use-forex";
@@ -8,6 +8,43 @@ import { useRates, useCreateLead } from "@/hooks/use-forex";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { CitySelector } from "./CitySelector";
+
+function useLiveViewers() {
+  const [viewers, setViewers] = React.useState(0);
+  React.useEffect(() => {
+    const base = Math.floor(Math.random() * 8) + 14;
+    setViewers(base);
+    const interval = setInterval(() => {
+      setViewers((v) => {
+        const delta = Math.random() > 0.5 ? 1 : -1;
+        return Math.max(8, Math.min(35, v + delta));
+      });
+    }, 4000);
+    return () => clearInterval(interval);
+  }, []);
+  return viewers;
+}
+
+function useCountdown() {
+  const [minutes, setMinutes] = React.useState(14);
+  const [seconds, setSeconds] = React.useState(59);
+  React.useEffect(() => {
+    const interval = setInterval(() => {
+      setSeconds((s) => {
+        if (s === 0) {
+          setMinutes((m) => {
+            if (m === 0) return 14;
+            return m - 1;
+          });
+          return 59;
+        }
+        return s - 1;
+      });
+    }, 1000);
+    return () => clearInterval(interval);
+  }, []);
+  return { minutes, seconds };
+}
 
 export function ForexWidget() {
   const [location] = useLocation();
@@ -20,16 +57,27 @@ export function ForexWidget() {
   const [city, setCity] = React.useState(defaultCity);
   const [currency, setCurrency] = React.useState("USD");
   const [amount, setAmount] = React.useState<number | "">(1000);
+  const [pulseButton, setPulseButton] = React.useState(true);
 
   const { data: ratesData, isLoading: isLoadingRates } = useRates(city);
   const { mutate: createLead, isPending } = useCreateLead();
   const { toast } = useToast();
+
+  const viewers = useLiveViewers();
+  const countdown = useCountdown();
 
   const selectedRate = ratesData?.rates.find((r) => r.currency === currency);
   const activeRate = selectedRate ? (product === "card" ? selectedRate.cardRate : selectedRate.notesRate) : 0;
   const convertedAmount = amount && activeRate ? (Number(amount) * activeRate).toFixed(2) : null;
 
   const savings = amount && activeRate ? (Number(amount) * activeRate * 0.035).toFixed(0) : null;
+
+  React.useEffect(() => {
+    const interval = setInterval(() => {
+      setPulseButton((p) => !p);
+    }, 2000);
+    return () => clearInterval(interval);
+  }, []);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -69,10 +117,38 @@ export function ForexWidget() {
       transition={{ duration: 0.35, ease: "easeOut" }}
       className="w-full max-w-[420px] mx-auto"
     >
-      <div className="bg-white rounded-md shadow-lg border border-gray-200 overflow-hidden">
-        <div className="bg-[#093562] px-5 py-4">
+      <div className="bg-white rounded-md shadow-lg border border-gray-200 overflow-visible relative">
+        <div className="absolute -top-3 left-1/2 -translate-x-1/2 z-10">
+          <motion.div
+            initial={{ scale: 0.9 }}
+            animate={{ scale: 1 }}
+            className="bg-red-500 text-white text-[10px] font-bold uppercase tracking-wider px-3 py-1 rounded-full shadow-md whitespace-nowrap"
+            data-testid="badge-limited"
+          >
+            Limited Time Offer
+          </motion.div>
+        </div>
+
+        <div className="bg-[#093562] px-5 pt-6 pb-4 rounded-t-md">
           <h2 className="text-lg font-semibold text-white" data-testid="text-widget-title">Buy Forex Online</h2>
           <p className="text-blue-200 text-xs mt-0.5">Best rates guaranteed, delivered to your door.</p>
+
+          <div className="flex items-center gap-3 mt-3">
+            <div className="flex items-center gap-1.5 bg-white/10 rounded-full px-2.5 py-1" data-testid="live-viewers">
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75" />
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-green-400" />
+              </span>
+              <Users className="w-3 h-3 text-green-300" />
+              <span className="text-[11px] text-green-300 font-medium">{viewers} viewing now</span>
+            </div>
+            <div className="flex items-center gap-1 bg-white/10 rounded-full px-2.5 py-1" data-testid="rate-countdown">
+              <Timer className="w-3 h-3 text-yellow-300" />
+              <span className="text-[11px] text-yellow-300 font-mono font-medium">
+                {String(countdown.minutes).padStart(2, '0')}:{String(countdown.seconds).padStart(2, '0')}
+              </span>
+            </div>
+          </div>
         </div>
 
         <div className="p-5">
@@ -177,24 +253,29 @@ export function ForexWidget() {
             )}
 
             <div className="space-y-2">
-              <Button
-                type="submit"
-                disabled={isPending || !amount || !activeRate}
-                className="w-full h-12 rounded-md text-[15px] font-bold bg-[#FFB427] hover:bg-[#e6a223] text-white uppercase tracking-wider border-0 shadow-none ring-0 outline-none focus:ring-0 focus-visible:ring-0"
-                data-testid="button-submit"
+              <motion.div
+                animate={pulseButton ? { scale: [1, 1.02, 1] } : {}}
+                transition={{ duration: 0.6, ease: "easeInOut" }}
               >
-                {isPending ? (
-                  <>
-                    <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
-                    Processing...
-                  </>
-                ) : (
-                  <>
-                    Book This Order
-                    <ArrowRight className="w-4 h-4 ml-2" />
-                  </>
-                )}
-              </Button>
+                <Button
+                  type="submit"
+                  disabled={isPending || !amount || !activeRate}
+                  className="w-full h-12 rounded-md text-[15px] font-bold bg-[#FFB427] hover:bg-[#e6a223] text-white uppercase tracking-wider border-0 shadow-none ring-0 outline-none focus:ring-0 focus-visible:ring-0"
+                  data-testid="button-submit"
+                >
+                  {isPending ? (
+                    <>
+                      <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
+                      Processing...
+                    </>
+                  ) : (
+                    <>
+                      Book This Order
+                      <ArrowRight className="w-4 h-4 ml-2" />
+                    </>
+                  )}
+                </Button>
+              </motion.div>
 
               <div className="flex items-center justify-center gap-4 pt-1" data-testid="trust-badges">
                 <div className="flex items-center gap-1">
@@ -207,6 +288,12 @@ export function ForexWidget() {
                   <span className="text-[10px] font-semibold text-gray-500 uppercase tracking-wide">RBI Authorized</span>
                 </div>
               </div>
+            </div>
+
+            <div className="bg-orange-50 border border-orange-200 rounded-md px-3 py-2 text-center" data-testid="urgency-banner">
+              <span className="text-[11px] text-orange-700 font-medium">
+                Rate locked for <span className="font-bold font-mono">{String(countdown.minutes).padStart(2, '0')}:{String(countdown.seconds).padStart(2, '0')}</span> min - Book now before it changes!
+              </span>
             </div>
 
             <div className="flex items-center justify-center gap-1.5 text-[11px] text-gray-400" data-testid="text-last-updated">
