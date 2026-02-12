@@ -18,13 +18,13 @@ export function ForexWidget() {
   
   // Parse query params for default city
   const searchParams = new URLSearchParams(search);
-  const defaultCity = searchParams.get("city")?.toLowerCase().slice(0, 3) || "del";
+  const defaultCity = searchParams.get("city")?.toUpperCase().slice(0, 3) || "DEL";
 
   // Form State
   const [product, setProduct] = React.useState<"note" | "card">("note");
   const [city, setCity] = React.useState(defaultCity);
   const [currency, setCurrency] = React.useState("USD");
-  const [amount, setAmount] = React.useState<number | "">("");
+  const [amount, setAmount] = React.useState<number | "">(1000);
 
   // Hooks
   const { data: ratesData, isLoading: isLoadingRates } = useRates(city);

@@ -85,11 +85,6 @@ export function CitySelector({ value, onChange }: CitySelectorProps) {
                         )}
                       />
                       {city.name}
-                      {city.aliases.length > 0 && (
-                        <span className="ml-2 text-xs text-muted-foreground hidden sm:inline-block">
-                          ({city.code.toUpperCase()})
-                        </span>
-                      )}
                     </CommandItem>
                   ))}
                 </CommandGroup>
