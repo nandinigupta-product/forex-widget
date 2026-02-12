@@ -69,9 +69,9 @@ export function ForexWidget() {
       className="w-full max-w-[420px] mx-auto"
     >
       <div className="bg-white rounded-md shadow-lg border border-gray-200 overflow-hidden">
-        <div className="bg-[#009688] px-5 py-4">
+        <div className="bg-[#093562] px-5 py-4">
           <h2 className="text-lg font-semibold text-white" data-testid="text-widget-title">Buy Forex Online</h2>
-          <p className="text-teal-100 text-xs mt-0.5">Best rates guaranteed, delivered to your door.</p>
+          <p className="text-blue-200 text-xs mt-0.5">Best rates guaranteed, delivered to your door.</p>
         </div>
 
         <div className="p-5">
@@ -82,7 +82,7 @@ export function ForexWidget() {
                 onClick={() => setProduct("note")}
                 className={`flex-1 py-2.5 text-sm font-medium transition-colors ${
                   product === "note"
-                    ? "bg-[#009688] text-white"
+                    ? "bg-[#093562] text-white"
                     : "bg-gray-50 text-gray-600 hover:bg-gray-100"
                 }`}
                 data-testid="tab-notes"
@@ -94,7 +94,7 @@ export function ForexWidget() {
                 onClick={() => setProduct("card")}
                 className={`flex-1 py-2.5 text-sm font-medium transition-colors border-l border-gray-300 ${
                   product === "card"
-                    ? "bg-[#009688] text-white"
+                    ? "bg-[#093562] text-white"
                     : "bg-gray-50 text-gray-600 hover:bg-gray-100"
                 }`}
                 data-testid="tab-card"
@@ -108,39 +108,43 @@ export function ForexWidget() {
               <CitySelector value={city} onChange={setCity} />
             </div>
 
-            <div className="grid grid-cols-[1fr,1.5fr] gap-3">
-              <div>
-                <label className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-1.5 block">Currency</label>
-                <Select value={currency} onValueChange={setCurrency} disabled={isLoadingRates}>
-                  <SelectTrigger className="h-10 rounded-md bg-white border-gray-300 text-sm" data-testid="select-currency">
-                    <SelectValue placeholder="USD" />
-                  </SelectTrigger>
-                  <SelectContent className="rounded-md border-gray-300 shadow-lg max-h-[280px]">
-                    {ratesData?.rates.map((rate) => (
-                      <SelectItem key={rate.currency} value={rate.currency} className="cursor-pointer py-2 text-sm">
-                        <span className="flex items-center gap-2">
-                          {rate.image && <img src={rate.image} alt={rate.currency} className="w-5 h-3.5 object-cover rounded-sm" />}
-                          <span>{rate.currency}</span>
-                          <span className="text-gray-400 text-xs">{rate.name}</span>
-                        </span>
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
+            <div>
+              <label className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-1.5 block">Currency</label>
+              <Select value={currency} onValueChange={setCurrency} disabled={isLoadingRates}>
+                <SelectTrigger className="h-10 rounded-md bg-white border-gray-300 text-sm" data-testid="select-currency">
+                  <SelectValue>
+                    {selectedRate ? (
+                      <span className="flex items-center gap-2">
+                        {selectedRate.image && <img src={selectedRate.image} alt={selectedRate.currency} className="w-5 h-3.5 object-cover rounded-sm flex-shrink-0" />}
+                        <span className="truncate">{selectedRate.name}</span>
+                      </span>
+                    ) : "Select currency"}
+                  </SelectValue>
+                </SelectTrigger>
+                <SelectContent className="rounded-md border-gray-300 shadow-lg max-h-[280px]">
+                  {ratesData?.rates.map((rate) => (
+                    <SelectItem key={rate.currency} value={rate.currency} className="cursor-pointer py-2 text-sm">
+                      <span className="flex items-center gap-2">
+                        {rate.image && <img src={rate.image} alt={rate.currency} className="w-5 h-3.5 object-cover rounded-sm flex-shrink-0" />}
+                        <span className="truncate">{rate.name}</span>
+                      </span>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
 
-              <div>
-                <label className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-1.5 block">Amount</label>
-                <Input
-                  type="number"
-                  placeholder="1000"
-                  min="1"
-                  value={amount}
-                  onChange={(e) => setAmount(e.target.value ? Number(e.target.value) : "")}
-                  className="h-10 rounded-md bg-white border-gray-300 text-sm font-medium"
-                  data-testid="input-amount"
-                />
-              </div>
+            <div>
+              <label className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-1.5 block">Amount ({currency})</label>
+              <Input
+                type="number"
+                placeholder="1000"
+                min="1"
+                value={amount}
+                onChange={(e) => setAmount(e.target.value ? Number(e.target.value) : "")}
+                className="h-10 rounded-md bg-white border-gray-300 text-sm font-medium"
+                data-testid="input-amount"
+              />
             </div>
 
             <AnimatePresence mode="wait">
@@ -150,14 +154,14 @@ export function ForexWidget() {
                   initial={{ opacity: 0, height: 0 }}
                   animate={{ opacity: 1, height: "auto" }}
                   exit={{ opacity: 0, height: 0 }}
-                  className="rounded-md bg-[#e0f2f1] border border-[#b2dfdb] p-3.5 space-y-2"
+                  className="rounded-md bg-[#eef3f8] border border-[#d0dce8] p-3.5 space-y-2"
                   data-testid="rate-display"
                 >
                   <div className="flex justify-between items-center gap-2">
                     <span className="text-xs text-gray-500 font-medium">
                       Rate ({product === "card" ? "Forex Card" : "Cash Notes"})
                     </span>
-                    <span className="text-sm font-semibold text-[#00796b] bg-white/70 px-2 py-0.5 rounded" data-testid="text-rate">
+                    <span className="text-sm font-semibold text-[#093562] bg-white/70 px-2 py-0.5 rounded" data-testid="text-rate">
                       1 {currency} = ₹{activeRate.toFixed(4)}
                     </span>
                   </div>
@@ -165,7 +169,7 @@ export function ForexWidget() {
                   {convertedAmount && (
                     <div className="flex justify-between items-baseline">
                       <span className="text-xs text-gray-500">You Pay (Approx)</span>
-                      <span className="text-xl font-bold text-[#00796b]" data-testid="text-converted-amount">
+                      <span className="text-xl font-bold text-[#093562]" data-testid="text-converted-amount">
                         ₹{Number(convertedAmount).toLocaleString('en-IN', { minimumFractionDigits: 2 })}
                       </span>
                     </div>
@@ -177,7 +181,7 @@ export function ForexWidget() {
             <Button
               type="submit"
               disabled={isPending || !amount || !activeRate}
-              className="w-full h-11 rounded-md text-sm font-semibold bg-[#009688] hover:bg-[#00796b] text-white uppercase tracking-wide"
+              className="w-full h-11 rounded-md text-sm font-semibold bg-[#FFB427] hover:bg-[#e6a223] text-[#093562] uppercase tracking-wide"
               data-testid="button-submit"
             >
               {isPending ? (
