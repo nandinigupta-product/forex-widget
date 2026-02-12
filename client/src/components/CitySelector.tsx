@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Check, ChevronsUpDown, MapPin, Building2 } from "lucide-react";
+import { Check, ChevronDown, MapPin } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import {
@@ -28,59 +28,80 @@ export function CitySelector({ value, onChange }: CitySelectorProps) {
 
   const selectedCity = cities.find((city) => city.code === value);
 
-  // Group cities
   const topCities = cities.filter((c) => c.isTopCity);
   const otherCities = cities.filter((c) => !c.isTopCity);
 
   return (
-    <div className="space-y-2">
-      <label className="text-sm font-medium text-muted-foreground flex items-center gap-2">
-        <MapPin className="w-4 h-4 text-primary" />
-        Select City
-      </label>
-      <Popover open={open} onOpenChange={setOpen}>
-        <PopoverTrigger asChild>
-          <Button
-            variant="outline"
-            role="combobox"
-            aria-expanded={open}
-            className="w-full justify-between h-12 text-base rounded-xl border-border/60 hover:border-primary/50 bg-background shadow-sm transition-all duration-200"
-            disabled={isLoading}
-          >
-            {isLoading ? (
-              <span className="text-muted-foreground">Loading cities...</span>
-            ) : selectedCity ? (
-              <span className="flex items-center gap-2 font-medium text-foreground">
-                <Building2 className="w-4 h-4 text-muted-foreground" />
-                {selectedCity.name}
-              </span>
-            ) : (
-              <span className="text-muted-foreground">Select a city...</span>
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild>
+        <Button
+          variant="outline"
+          role="combobox"
+          aria-expanded={open}
+          className="w-full justify-between h-10 text-sm rounded-md border-gray-300 bg-white shadow-none font-normal"
+          disabled={isLoading}
+          data-testid="select-city"
+        >
+          {isLoading ? (
+            <span className="text-gray-400">Loading cities...</span>
+          ) : selectedCity ? (
+            <span className="flex items-center gap-2 text-gray-700">
+              <MapPin className="w-3.5 h-3.5 text-[#009688]" />
+              {selectedCity.name}
+            </span>
+          ) : (
+            <span className="text-gray-400">Select a city...</span>
+          )}
+          <ChevronDown className="ml-2 h-3.5 w-3.5 shrink-0 text-gray-400" />
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent className="w-[320px] p-0 rounded-md shadow-lg border-gray-200" align="start">
+        <Command className="rounded-md">
+          <CommandInput placeholder="Search city..." className="h-10 text-sm" />
+          <CommandList className="max-h-[260px] scrollbar-thin">
+            <CommandEmpty>No city found.</CommandEmpty>
+
+            {topCities.length > 0 && (
+              <CommandGroup heading="Top Cities">
+                {topCities.map((city) => (
+                  <CommandItem
+                    key={city.code}
+                    value={`${city.name} ${city.aliases.join(" ")}`}
+                    onSelect={() => {
+                      onChange(city.code);
+                      setOpen(false);
+                    }}
+                    className="cursor-pointer py-2 text-sm"
+                  >
+                    <Check
+                      className={cn(
+                        "mr-2 h-3.5 w-3.5 text-[#009688]",
+                        value === city.code ? "opacity-100" : "opacity-0"
+                      )}
+                    />
+                    {city.name}
+                  </CommandItem>
+                ))}
+              </CommandGroup>
             )}
-            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-          </Button>
-        </PopoverTrigger>
-        <PopoverContent className="w-[300px] p-0 rounded-xl shadow-xl border-border/60" align="start">
-          <Command className="rounded-xl">
-            <CommandInput placeholder="Search city..." className="h-11" />
-            <CommandList className="max-h-[300px] scrollbar-thin">
-              <CommandEmpty>No city found.</CommandEmpty>
-              
-              {topCities.length > 0 && (
-                <CommandGroup heading="Top Cities" className="text-primary font-medium">
-                  {topCities.map((city) => (
+
+            {otherCities.length > 0 && (
+              <>
+                <div className="h-px bg-gray-100 mx-2 my-1" />
+                <CommandGroup heading="Other Cities">
+                  {otherCities.map((city) => (
                     <CommandItem
                       key={city.code}
-                      value={`${city.name} ${city.aliases.join(" ")}`} // Enable search by name and aliases
+                      value={`${city.name} ${city.aliases.join(" ")}`}
                       onSelect={() => {
                         onChange(city.code);
                         setOpen(false);
                       }}
-                      className="cursor-pointer aria-selected:bg-primary/10 aria-selected:text-primary py-2.5"
+                      className="cursor-pointer py-2 text-sm"
                     >
                       <Check
                         className={cn(
-                          "mr-2 h-4 w-4 text-primary",
+                          "mr-2 h-3.5 w-3.5 text-[#009688]",
                           value === city.code ? "opacity-100" : "opacity-0"
                         )}
                       />
@@ -88,38 +109,11 @@ export function CitySelector({ value, onChange }: CitySelectorProps) {
                     </CommandItem>
                   ))}
                 </CommandGroup>
-              )}
-
-              {otherCities.length > 0 && (
-                <>
-                  <div className="h-px bg-border/50 mx-2 my-1" />
-                  <CommandGroup heading="Other Cities">
-                    {otherCities.map((city) => (
-                      <CommandItem
-                        key={city.code}
-                        value={`${city.name} ${city.aliases.join(" ")}`} // Enable search by name and aliases
-                        onSelect={() => {
-                          onChange(city.code);
-                          setOpen(false);
-                        }}
-                        className="cursor-pointer aria-selected:bg-muted py-2.5"
-                      >
-                        <Check
-                          className={cn(
-                            "mr-2 h-4 w-4 text-primary",
-                            value === city.code ? "opacity-100" : "opacity-0"
-                          )}
-                        />
-                        {city.name}
-                      </CommandItem>
-                    ))}
-                  </CommandGroup>
-                </>
-              )}
-            </CommandList>
-          </Command>
-        </PopoverContent>
-      </Popover>
-    </div>
+              </>
+            )}
+          </CommandList>
+        </Command>
+      </PopoverContent>
+    </Popover>
   );
 }
