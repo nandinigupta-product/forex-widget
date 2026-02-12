@@ -157,7 +157,7 @@ export function ForexWidget() {
                   if (hour < 13) {
                     return (
                       <span className="text-[11px] text-green-700 font-medium">
-                        Same-day doorstep delivery! | 7 days a week
+                        Same-day doorstep delivery!
                       </span>
                     );
                   }
@@ -166,7 +166,7 @@ export function ForexWidget() {
                   const formatted = tomorrow.toLocaleDateString('en-IN', { day: 'numeric', month: 'short' });
                   return (
                     <span className="text-[11px] text-green-700 font-medium">
-                      Delivery by {formatted} (tomorrow) | 7 days a week
+                      Delivery by {formatted} (tomorrow)
                     </span>
                   );
                 })()}
