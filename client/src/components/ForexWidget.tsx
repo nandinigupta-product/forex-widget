@@ -1,5 +1,5 @@
 import * as React from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { ArrowRight, RefreshCw, Clock } from "lucide-react";
 import { useLocation, useSearch } from "wouter";
 import { useToast } from "@/hooks/use-toast";
@@ -145,43 +145,24 @@ export function ForexWidget() {
                 className="h-10 rounded-md bg-white border-gray-300 text-sm font-medium"
                 data-testid="input-amount"
               />
-            </div>
-
-            <AnimatePresence mode="wait">
               {selectedRate && activeRate > 0 && (
-                <motion.div
-                  key={`${currency}-${product}`}
-                  initial={{ opacity: 0, height: 0 }}
-                  animate={{ opacity: 1, height: "auto" }}
-                  exit={{ opacity: 0, height: 0 }}
-                  className="rounded-md bg-[#eef3f8] border border-[#d0dce8] p-3.5 space-y-2"
-                  data-testid="rate-display"
-                >
-                  <div className="flex justify-between items-center gap-2">
-                    <span className="text-xs text-gray-500 font-medium">
-                      Rate ({product === "card" ? "Forex Card" : "Cash Notes"})
-                    </span>
-                    <span className="text-sm font-semibold text-[#093562] bg-white/70 px-2 py-0.5 rounded" data-testid="text-rate">
-                      1 {currency} = ₹{activeRate.toFixed(4)}
-                    </span>
-                  </div>
-
+                <div className="flex items-center justify-between mt-1.5 px-0.5" data-testid="rate-display">
+                  <span className="text-xs text-gray-400" data-testid="text-rate">
+                    1 {currency} = ₹{activeRate.toFixed(2)}
+                  </span>
                   {convertedAmount && (
-                    <div className="flex justify-between items-baseline">
-                      <span className="text-xs text-gray-500">You Pay (Approx)</span>
-                      <span className="text-xl font-bold text-[#093562]" data-testid="text-converted-amount">
-                        ₹{Number(convertedAmount).toLocaleString('en-IN', { minimumFractionDigits: 2 })}
-                      </span>
-                    </div>
+                    <span className="text-xs font-semibold text-[#093562]" data-testid="text-converted-amount">
+                      You pay ₹{Number(convertedAmount).toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                    </span>
                   )}
-                </motion.div>
+                </div>
               )}
-            </AnimatePresence>
+            </div>
 
             <Button
               type="submit"
               disabled={isPending || !amount || !activeRate}
-              className="w-full h-11 rounded-md text-sm font-semibold bg-[#FFB427] hover:bg-[#e6a223] text-[#093562] uppercase tracking-wide"
+              className="w-full h-11 rounded-md text-sm font-bold bg-[#FFB427] hover:bg-[#e6a223] text-white uppercase tracking-wide border-0 shadow-none ring-0 outline-none focus:ring-0 focus-visible:ring-0"
               data-testid="button-submit"
             >
               {isPending ? (
