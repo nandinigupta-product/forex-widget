@@ -37,6 +37,9 @@ export const api = {
     list: {
       method: 'GET' as const,
       path: '/api/rates' as const,
+      input: z.object({
+        city_code: z.string().optional(),
+      }).optional(),
       responses: {
         200: z.object({
           lastUpdated: z.string(),

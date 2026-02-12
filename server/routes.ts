@@ -48,24 +48,59 @@ export async function registerRoutes(
     }
   });
 
-  // --- API: Get Rates (Mocked for now) ---
-  app.get(api.rates.list.path, async (_req, res) => {
-    // In a real app, this would fetch from an external forex API
-    const mockRates = [
-      { currency: "USD", rate: 83.50, symbol: "$", name: "US Dollar" },
-      { currency: "EUR", rate: 90.20, symbol: "€", name: "Euro" },
-      { currency: "GBP", rate: 105.80, symbol: "£", name: "British Pound" },
-      { currency: "AUD", rate: 54.30, symbol: "A$", name: "Australian Dollar" },
-      { currency: "CAD", rate: 61.50, symbol: "C$", name: "Canadian Dollar" },
-      { currency: "SGD", rate: 62.10, symbol: "S$", name: "Singapore Dollar" },
-      { currency: "AED", rate: 22.75, symbol: "dh", name: "UAE Dirham" },
-      { currency: "THB", rate: 2.30, symbol: "฿", name: "Thai Baht" },
-    ];
-    
-    res.json({
-      lastUpdated: new Date().toISOString(),
-      rates: mockRates
-    });
+  // --- API: Get Rates from BookMyForex ---
+  app.get(api.rates.list.path, async (req, res) => {
+    try {
+      const cityCode = (req.query.city_code as string) || "DEL";
+      
+      const response = await fetch(`https://www.bookmyforex.com/api/secure/v1/get-full-rate-card?city_code=${cityCode}`, {
+        headers: {
+          'accept': 'application/json, text/javascript, */*; q=0.01',
+          'accept-language': 'en-GB,en-US;q=0.9,en;q=0.8',
+          'content-type': 'application/json',
+          'priority': 'u=1, i',
+          'referer': 'https://www.bookmyforex.com/',
+          'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36',
+          'x-requested-with': 'XMLHttpRequest'
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error(`External API responded with status: ${response.status}`);
+      }
+
+      const data: any = await response.json();
+      
+      // Transform BookMyForex format to our internal Rate format
+      // Looking for 'rates' or 'rate_card' in the response based on typical BMF JSON
+      const bmfRates = data.rate_card || data.rates || [];
+      
+      const formattedRates = bmfRates.map((item: any) => ({
+        currency: item.currency_code || item.currency,
+        rate: parseFloat(item.sell_rate || item.rate || 0),
+        symbol: item.currency_symbol || "",
+        name: item.currency_name || ""
+      })).filter((r: any) => r.rate > 0);
+
+      if (formattedRates.length === 0) {
+        // Fallback to mock if API returned empty but successful
+        return res.json({
+          lastUpdated: new Date().toISOString(),
+          rates: [
+            { currency: "USD", rate: 83.50, symbol: "$", name: "US Dollar" },
+            { currency: "EUR", rate: 90.20, symbol: "€", name: "Euro" }
+          ]
+        });
+      }
+      
+      res.json({
+        lastUpdated: new Date().toISOString(),
+        rates: formattedRates
+      });
+    } catch (error) {
+      console.error("Failed to fetch rates from BookMyForex:", error);
+      res.status(500).json({ message: "Failed to fetch exchange rates" });
+    }
   });
 
   // --- API: Create Lead ---
