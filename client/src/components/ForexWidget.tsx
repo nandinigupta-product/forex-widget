@@ -1,11 +1,10 @@
 import * as React from "react";
 import { motion } from "framer-motion";
-import { ArrowRight, RefreshCw, Clock } from "lucide-react";
+import { ArrowRight, RefreshCw, Zap, Shield, TrendingDown, Clock } from "lucide-react";
 import { useLocation, useSearch } from "wouter";
 import { useToast } from "@/hooks/use-toast";
 import { useRates, useCreateLead } from "@/hooks/use-forex";
 
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { CitySelector } from "./CitySelector";
@@ -29,6 +28,8 @@ export function ForexWidget() {
   const selectedRate = ratesData?.rates.find((r) => r.currency === currency);
   const activeRate = selectedRate ? (product === "card" ? selectedRate.cardRate : selectedRate.notesRate) : 0;
   const convertedAmount = amount && activeRate ? (Number(amount) * activeRate).toFixed(2) : null;
+
+  const savings = amount && activeRate ? (Number(amount) * activeRate * 0.035).toFixed(0) : null;
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -136,47 +137,77 @@ export function ForexWidget() {
 
             <div>
               <label className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-1.5 block">Amount ({currency})</label>
-              <Input
-                type="number"
-                placeholder="1000"
-                min="1"
-                value={amount}
-                onChange={(e) => setAmount(e.target.value ? Number(e.target.value) : "")}
-                className="h-10 rounded-md bg-white border-gray-300 text-sm font-medium"
-                data-testid="input-amount"
-              />
-              {selectedRate && activeRate > 0 && (
-                <div className="flex items-center justify-between mt-1.5 px-0.5" data-testid="rate-display">
-                  <span className="text-xs text-gray-400" data-testid="text-rate">
-                    1 {currency} = ₹{activeRate.toFixed(2)}
-                  </span>
-                  {convertedAmount && (
-                    <span className="text-xs font-semibold text-[#093562]" data-testid="text-converted-amount">
-                      You pay ₹{Number(convertedAmount).toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+              <div className="relative">
+                <input
+                  type="number"
+                  placeholder="1000"
+                  min="1"
+                  value={amount}
+                  onChange={(e) => setAmount(e.target.value ? Number(e.target.value) : "")}
+                  className="w-full h-12 rounded-md bg-white border border-gray-300 text-base font-semibold pl-3 pr-3 focus:outline-none focus:ring-2 focus:ring-[#093562]/30 focus:border-[#093562]"
+                  data-testid="input-amount"
+                />
+                {selectedRate && activeRate > 0 && (
+                  <div className="absolute right-3 top-1/2 -translate-y-1/2 text-right" data-testid="rate-display">
+                    <span className="text-[11px] text-gray-400 block leading-tight" data-testid="text-rate">
+                      1 {currency} = ₹{activeRate.toFixed(2)}
                     </span>
-                  )}
-                </div>
-              )}
+                    {convertedAmount && (
+                      <span className="text-xs font-bold text-[#093562] block leading-tight" data-testid="text-converted-amount">
+                        = ₹{Number(convertedAmount).toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                      </span>
+                    )}
+                  </div>
+                )}
+              </div>
             </div>
 
-            <Button
-              type="submit"
-              disabled={isPending || !amount || !activeRate}
-              className="w-full h-11 rounded-md text-sm font-bold bg-[#FFB427] hover:bg-[#e6a223] text-white uppercase tracking-wide border-0 shadow-none ring-0 outline-none focus:ring-0 focus-visible:ring-0"
-              data-testid="button-submit"
-            >
-              {isPending ? (
-                <>
-                  <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
-                  Processing...
-                </>
-              ) : (
-                <>
-                  Book This Order
-                  <ArrowRight className="w-4 h-4 ml-2" />
-                </>
-              )}
-            </Button>
+            {savings && Number(savings) > 0 && (
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                className="flex items-center gap-2 bg-green-50 border border-green-200 rounded-md px-3 py-2"
+                data-testid="savings-banner"
+              >
+                <TrendingDown className="w-4 h-4 text-green-600 flex-shrink-0" />
+                <span className="text-xs text-green-700 font-medium">
+                  You save upto <span className="font-bold">₹{Number(savings).toLocaleString('en-IN')}</span> vs banks & airports
+                </span>
+              </motion.div>
+            )}
+
+            <div className="space-y-2">
+              <Button
+                type="submit"
+                disabled={isPending || !amount || !activeRate}
+                className="w-full h-12 rounded-md text-[15px] font-bold bg-[#FFB427] hover:bg-[#e6a223] text-white uppercase tracking-wider border-0 shadow-none ring-0 outline-none focus:ring-0 focus-visible:ring-0"
+                data-testid="button-submit"
+              >
+                {isPending ? (
+                  <>
+                    <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
+                    Processing...
+                  </>
+                ) : (
+                  <>
+                    Book This Order
+                    <ArrowRight className="w-4 h-4 ml-2" />
+                  </>
+                )}
+              </Button>
+
+              <div className="flex items-center justify-center gap-4 pt-1" data-testid="trust-badges">
+                <div className="flex items-center gap-1">
+                  <Zap className="w-3 h-3 text-[#FFB427]" />
+                  <span className="text-[10px] font-semibold text-gray-500 uppercase tracking-wide">Zero Forex Markup</span>
+                </div>
+                <div className="w-px h-3 bg-gray-300" />
+                <div className="flex items-center gap-1">
+                  <Shield className="w-3 h-3 text-green-500" />
+                  <span className="text-[10px] font-semibold text-gray-500 uppercase tracking-wide">RBI Authorized</span>
+                </div>
+              </div>
+            </div>
 
             <div className="flex items-center justify-center gap-1.5 text-[11px] text-gray-400" data-testid="text-last-updated">
               <Clock className="w-3 h-3" />
