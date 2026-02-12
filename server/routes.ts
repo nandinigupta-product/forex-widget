@@ -71,16 +71,26 @@ export async function registerRoutes(
 
       const data: any = await response.json();
       
-      // Transform BookMyForex format to our internal Rate format
-      // Looking for 'rates' or 'rate_card' in the response based on typical BMF JSON
-      const bmfRates = data.rate_card || data.rates || [];
+      let bmfRates = [];
+      const target = data.data?.rate_card || data.rate_card || data.data?.rates || data.rates;
       
-      const formattedRates = bmfRates.map((item: any) => ({
-        currency: item.currency_code || item.currency,
-        rate: parseFloat(item.sell_rate || item.rate || 0),
-        symbol: item.currency_symbol || "",
-        name: item.currency_name || ""
-      })).filter((r: any) => r.rate > 0);
+      if (Array.isArray(target)) {
+        bmfRates = target;
+      } else if (target && typeof target === 'object') {
+        bmfRates = Object.values(target);
+      }
+
+      const formattedRates = bmfRates.map((item: any) => {
+        const currency = item.currency_code || item.currency || item.code || item.cc;
+        // Map BookMyForex specific fields: 
+        // bcn = Buy Cash Notes (user buys from BMF)
+        // scn = Sell Cash Notes (user sells to BMF)
+        const rate = parseFloat(item.bcn || item.sell_rate || item.rate || item.selling_rate || 0);
+        const symbol = item.currency_symbol || item.symbol || "";
+        const name = item.currency_name || item.name || "";
+        
+        return { currency, rate, symbol, name };
+      }).filter((r: any) => r.rate > 0 && r.currency);
 
       if (formattedRates.length === 0) {
         // Fallback to mock if API returned empty but successful
