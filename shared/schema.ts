@@ -1,18 +1,47 @@
-import { sql } from "drizzle-orm";
-import { pgTable, text, varchar } from "drizzle-orm/pg-core";
+
+import { pgTable, text, serial, integer, boolean, timestamp, numeric } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
-export const users = pgTable("users", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  username: text("username").notNull().unique(),
-  password: text("password").notNull(),
+// === TABLE DEFINITIONS ===
+// We'll store leads generated from the widget
+export const leads = pgTable("leads", {
+  id: serial("id").primaryKey(),
+  city: text("city").notNull(),
+  product: text("product").notNull(), // 'card' | 'note'
+  currency: text("currency").notNull(),
+  amount: integer("amount").notNull(),
+  convertedAmount: numeric("converted_amount"), // Estimated value
+  createdAt: timestamp("created_at").defaultNow(),
 });
 
-export const insertUserSchema = createInsertSchema(users).pick({
-  username: true,
-  password: true,
-});
+// === SCHEMAS ===
+export const insertLeadSchema = createInsertSchema(leads).omit({ id: true, createdAt: true, convertedAmount: true });
 
-export type InsertUser = z.infer<typeof insertUserSchema>;
-export type User = typeof users.$inferSelect;
+// === EXPLICIT API TYPES ===
+export type Lead = typeof leads.$inferSelect;
+export type InsertLead = z.infer<typeof insertLeadSchema>;
+
+// Request types
+export type CreateLeadRequest = InsertLead;
+
+// Response types
+export type City = {
+  code: string;
+  name: string;
+  aliases: string[];
+  icon?: string;
+  isTopCity?: boolean;
+};
+
+export type Rate = {
+  currency: string;
+  rate: number;
+  symbol: string;
+  name: string;
+};
+
+export type RatesResponse = {
+  lastUpdated: string;
+  rates: Rate[];
+};
