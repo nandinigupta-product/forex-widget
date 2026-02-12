@@ -51,7 +51,7 @@ export async function registerRoutes(
   // --- API: Get Rates from BookMyForex ---
   app.get(api.rates.list.path, async (req, res) => {
     try {
-      const cityCode = (req.query.city_code as string) || "DEL";
+      const cityCode = ((req.query.city_code as string) || "DEL").toUpperCase();
       
       const response = await fetch(`https://www.bookmyforex.com/api/secure/v1/get-full-rate-card?city_code=${cityCode}`, {
         headers: {
@@ -71,38 +71,22 @@ export async function registerRoutes(
 
       const data: any = await response.json();
       
-      let bmfRates = [];
-      const result = data.result || data.data || data;
-      const target = result.rate_card || result.rates || [];
-      
-      if (Array.isArray(target)) {
-        bmfRates = target;
-      } else if (target && typeof target === 'object') {
-        bmfRates = Object.values(target);
-      }
+      // BookMyForex API returns { message, type, result: [...rates] }
+      // result is directly an array of rate objects
+      const bmfRates: any[] = Array.isArray(data.result) ? data.result : [];
 
       const formattedRates = bmfRates.map((item: any) => {
-        const currency = item.currency_code || item.currency || item.code || item.cc;
-        // BMF 'b' usually refers to the base sell rate for forex cards/notes
-        // If 'b' is present (like 90.7725), we use it. 
-        // Otherwise fallback to bcn (Buy Cash Notes) or other rate fields.
-        const rate = parseFloat(item.b || item.bcn || item.sell_rate || item.rate || item.selling_rate || 0);
-        const symbol = item.currency_symbol || item.symbol || "";
-        const name = item.currency_name || item.name || "";
+        const currency = item.currency_code;
+        // bpc = Buy Prepaid Card rate (forex card)
+        // bcn = Buy Cash Notes rate
+        // b = best buy rate (usually same as bpc)
+        const cardRate = parseFloat(item.bpc || item.b || "0");
+        const notesRate = parseFloat(item.bcn || item.b || "0");
+        const name = item.currency_description || "";
+        const image = item.currency_image || "";
         
-        return { currency, rate, symbol, name };
-      }).filter((r: any) => r.rate > 0 && r.currency);
-
-      if (formattedRates.length === 0) {
-        // Fallback to mock if API returned empty but successful
-        return res.json({
-          lastUpdated: new Date().toISOString(),
-          rates: [
-            { currency: "USD", rate: 83.50, symbol: "$", name: "US Dollar" },
-            { currency: "EUR", rate: 90.20, symbol: "€", name: "Euro" }
-          ]
-        });
-      }
+        return { currency, cardRate, notesRate, symbol: "", name, image };
+      }).filter((r: any) => (r.cardRate > 0 || r.notesRate > 0) && r.currency);
       
       res.json({
         lastUpdated: new Date().toISOString(),

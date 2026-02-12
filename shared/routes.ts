@@ -45,9 +45,11 @@ export const api = {
           lastUpdated: z.string(),
           rates: z.array(z.object({
             currency: z.string(),
-            rate: z.number(),
+            cardRate: z.number(),
+            notesRate: z.number(),
             symbol: z.string(),
             name: z.string(),
+            image: z.string().optional(),
           })),
         }),
       },

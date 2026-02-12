@@ -36,9 +36,11 @@ export type City = {
 
 export type Rate = {
   currency: string;
-  rate: number;
+  cardRate: number;
+  notesRate: number;
   symbol: string;
   name: string;
+  image?: string;
 };
 
 export type RatesResponse = {

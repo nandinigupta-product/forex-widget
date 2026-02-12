@@ -33,12 +33,13 @@ export function ForexWidget() {
 
   // Derived State
   const selectedRate = ratesData?.rates.find((r) => r.currency === currency);
-  const convertedAmount = amount && selectedRate ? (Number(amount) * selectedRate.rate).toFixed(2) : null;
+  const activeRate = selectedRate ? (product === "card" ? selectedRate.cardRate : selectedRate.notesRate) : 0;
+  const convertedAmount = amount && activeRate ? (Number(amount) * activeRate).toFixed(2) : null;
 
   // Handlers
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!amount || !selectedRate) return;
+    if (!amount || !activeRate) return;
 
     createLead(
       {
@@ -127,7 +128,7 @@ export function ForexWidget() {
                       {ratesData?.rates.map((rate) => (
                         <SelectItem key={rate.currency} value={rate.currency} className="cursor-pointer py-3">
                           <span className="flex items-center gap-2 font-medium">
-                            <span className="w-6 text-center text-lg">{rate.symbol}</span>
+                            {rate.image && <img src={rate.image} alt={rate.currency} className="w-5 h-4 object-cover rounded-sm" />}
                             {rate.currency}
                           </span>
                         </SelectItem>
@@ -153,7 +154,7 @@ export function ForexWidget() {
 
               {/* Live Rate Display */}
               <AnimatePresence mode="wait">
-                {selectedRate && (
+                {selectedRate && activeRate > 0 && (
                   <motion.div
                     key={currency}
                     initial={{ opacity: 0, height: 0 }}
@@ -162,9 +163,9 @@ export function ForexWidget() {
                     className="rounded-xl bg-blue-50/50 border border-blue-100 p-4 space-y-1"
                   >
                     <div className="flex justify-between items-center text-sm text-blue-600/80">
-                      <span className="font-medium">Exchange Rate</span>
+                      <span className="font-medium">Exchange Rate ({product === "card" ? "Forex Card" : "Cash Notes"})</span>
                       <span className="font-mono bg-blue-100/50 px-2 py-0.5 rounded text-xs">
-                        1 {currency} = ₹{selectedRate.rate}
+                        1 {currency} = ₹{activeRate.toFixed(4)}
                       </span>
                     </div>
                     
@@ -181,7 +182,7 @@ export function ForexWidget() {
               {/* Submit Button */}
               <Button
                 type="submit"
-                disabled={isPending || !amount || !selectedRate}
+                disabled={isPending || !amount || !activeRate}
                 className="w-full h-14 rounded-xl text-lg font-semibold shadow-lg shadow-primary/25 hover:shadow-xl hover:shadow-primary/30 hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200"
               >
                 {isPending ? (
