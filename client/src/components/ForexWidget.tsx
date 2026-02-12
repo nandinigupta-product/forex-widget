@@ -1,6 +1,6 @@
 import * as React from "react";
 import { motion } from "framer-motion";
-import { ArrowRight, RefreshCw, Zap, Shield, TrendingDown, Clock, Timer } from "lucide-react";
+import { ArrowRight, RefreshCw, Zap, Shield, TrendingDown, Clock, Timer, Truck } from "lucide-react";
 import { useLocation, useSearch } from "wouter";
 import { useToast } from "@/hooks/use-toast";
 import { useRates, useCreateLead } from "@/hooks/use-forex";
@@ -149,6 +149,15 @@ export function ForexWidget() {
             <div>
               <label className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-1.5 block">Select City</label>
               <CitySelector value={city} onChange={setCity} />
+              <div className="flex items-center gap-1.5 mt-1.5 px-0.5" data-testid="delivery-tat">
+                <Truck className="w-3 h-3 text-green-600 flex-shrink-0" />
+                <span className="text-[11px] text-green-700 font-medium">
+                  {new Date().getHours() < 13
+                    ? "Order now for same-day doorstep delivery!"
+                    : "Order now, delivered by tomorrow!"}
+                </span>
+                <span className="text-[11px] text-gray-400">| 7 days a week</span>
+              </div>
             </div>
 
             <div>
