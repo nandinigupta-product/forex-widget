@@ -151,12 +151,25 @@ export function ForexWidget() {
               <CitySelector value={city} onChange={setCity} />
               <div className="flex items-center gap-1.5 mt-1.5 px-0.5" data-testid="delivery-tat">
                 <Truck className="w-3 h-3 text-green-600 flex-shrink-0" />
-                <span className="text-[11px] text-green-700 font-medium">
-                  {new Date().getHours() < 13
-                    ? "Order now for same-day doorstep delivery!"
-                    : "Order now, delivered by tomorrow!"}
-                </span>
-                <span className="text-[11px] text-gray-400">| 7 days a week</span>
+                {(() => {
+                  const now = new Date();
+                  const hour = now.getHours();
+                  if (hour < 13) {
+                    return (
+                      <span className="text-[11px] text-green-700 font-medium">
+                        Same-day doorstep delivery! | 7 days a week
+                      </span>
+                    );
+                  }
+                  const tomorrow = new Date(now);
+                  tomorrow.setDate(tomorrow.getDate() + 1);
+                  const formatted = tomorrow.toLocaleDateString('en-IN', { day: 'numeric', month: 'short' });
+                  return (
+                    <span className="text-[11px] text-green-700 font-medium">
+                      Delivery by {formatted} (tomorrow) | 7 days a week
+                    </span>
+                  );
+                })()}
               </div>
             </div>
 
