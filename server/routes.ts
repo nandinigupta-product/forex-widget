@@ -72,7 +72,8 @@ export async function registerRoutes(
       const data: any = await response.json();
       
       let bmfRates = [];
-      const target = data.data?.rate_card || data.rate_card || data.data?.rates || data.rates;
+      const result = data.result || data.data || data;
+      const target = result.rate_card || result.rates || [];
       
       if (Array.isArray(target)) {
         bmfRates = target;
@@ -82,10 +83,10 @@ export async function registerRoutes(
 
       const formattedRates = bmfRates.map((item: any) => {
         const currency = item.currency_code || item.currency || item.code || item.cc;
-        // Map BookMyForex specific fields: 
-        // bcn = Buy Cash Notes (user buys from BMF)
-        // scn = Sell Cash Notes (user sells to BMF)
-        const rate = parseFloat(item.bcn || item.sell_rate || item.rate || item.selling_rate || 0);
+        // BMF 'b' usually refers to the base sell rate for forex cards/notes
+        // If 'b' is present (like 90.7725), we use it. 
+        // Otherwise fallback to bcn (Buy Cash Notes) or other rate fields.
+        const rate = parseFloat(item.b || item.bcn || item.sell_rate || item.rate || item.selling_rate || 0);
         const symbol = item.currency_symbol || item.symbol || "";
         const name = item.currency_name || item.name || "";
         
