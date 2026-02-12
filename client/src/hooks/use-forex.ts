@@ -14,11 +14,14 @@ export function useCities() {
   });
 }
 
-export function useRates() {
+export function useRates(cityCode?: string) {
   return useQuery({
-    queryKey: [api.rates.list.path],
+    queryKey: [api.rates.list.path, cityCode],
     queryFn: async () => {
-      const res = await fetch(api.rates.list.path);
+      const url = cityCode 
+        ? `${api.rates.list.path}?city_code=${cityCode}`
+        : api.rates.list.path;
+      const res = await fetch(url);
       if (!res.ok) throw new Error("Failed to fetch rates");
       return api.rates.list.responses[200].parse(await res.json());
     },

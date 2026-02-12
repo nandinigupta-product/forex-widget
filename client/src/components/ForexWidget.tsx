@@ -27,7 +27,7 @@ export function ForexWidget() {
   const [amount, setAmount] = React.useState<number | "">("");
 
   // Hooks
-  const { data: ratesData, isLoading: isLoadingRates } = useRates();
+  const { data: ratesData, isLoading: isLoadingRates } = useRates(city);
   const { mutate: createLead, isPending } = useCreateLead();
   const { toast } = useToast();
 

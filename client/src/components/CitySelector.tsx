@@ -71,7 +71,7 @@ export function CitySelector({ value, onChange }: CitySelectorProps) {
                   {topCities.map((city) => (
                     <CommandItem
                       key={city.code}
-                      value={city.name}
+                      value={`${city.name} ${city.aliases.join(" ")}`} // Enable search by name and aliases
                       onSelect={() => {
                         onChange(city.code);
                         setOpen(false);
@@ -102,7 +102,7 @@ export function CitySelector({ value, onChange }: CitySelectorProps) {
                     {otherCities.map((city) => (
                       <CommandItem
                         key={city.code}
-                        value={city.name} // Search by name
+                        value={`${city.name} ${city.aliases.join(" ")}`} // Enable search by name and aliases
                         onSelect={() => {
                           onChange(city.code);
                           setOpen(false);
