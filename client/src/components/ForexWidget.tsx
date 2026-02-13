@@ -1,6 +1,6 @@
 import * as React from "react";
 import { motion } from "framer-motion";
-import { ArrowRight, RefreshCw, Zap, Shield, TrendingDown, Clock, Timer, Truck, ChevronDown, IndianRupee } from "lucide-react";
+import { ArrowRight, RefreshCw, Zap, Shield, TrendingDown, Clock, Timer, Truck, ChevronDown, IndianRupee, CreditCard, Banknote } from "lucide-react";
 import { useLocation, useSearch } from "wouter";
 import { useToast } from "@/hooks/use-toast";
 import { useRates, useCreateLead } from "@/hooks/use-forex";
@@ -11,20 +11,20 @@ import { CitySelector } from "./CitySelector";
 import deliveryIcon from "@assets/image_1770969428621.png";
 
 const CARD_MIN_LOAD: Record<string, string> = {
-  USD: "Start with just 10 USD, top up later",
-  AED: "Start with just 40 AED, top up later",
-  THB: "Start with just 350 THB, top up later",
-  EUR: "Start with just 10 EUR, top up later",
-  SGD: "Start with just 15 SGD, top up later",
-  GBP: "Start with just 10 GBP, top up later",
-  HKD: "Start with just 75 HKD, top up later",
-  CHF: "Start with just 10 CHF, top up later",
-  SAR: "Start with just 40 SAR, top up later",
-  CAD: "Start with just 15 CAD, top up later",
-  ZAR: "Start with just 150 ZAR, top up later",
-  AUD: "Start with just 15 AUD, top up later",
-  JPY: "Start with just 10,000 JPY, top up later",
-  NZD: "Start with just 15 NZD, top up later",
+  USD: "Start with just 10 USD",
+  AED: "Start with just 40 AED",
+  THB: "Start with just 350 THB",
+  EUR: "Start with just 10 EUR",
+  SGD: "Start with just 15 SGD",
+  GBP: "Start with just 10 GBP",
+  HKD: "Start with just 75 HKD",
+  CHF: "Start with just 10 CHF",
+  SAR: "Start with just 40 SAR",
+  CAD: "Start with just 15 CAD",
+  ZAR: "Start with just 150 ZAR",
+  AUD: "Start with just 15 AUD",
+  JPY: "Start with just 10,000 JPY",
+  NZD: "Start with just 15 NZD",
 };
 
 function useCountdown() {
@@ -171,25 +171,27 @@ export function ForexWidget() {
               <button
                 type="button"
                 onClick={() => setProduct("note")}
-                className={`flex-1 py-2.5 text-sm font-medium transition-colors ${
+                className={`flex-1 py-2.5 text-sm font-medium transition-colors flex items-center justify-center ${
                   product === "note"
                     ? "bg-[#093562] text-white"
                     : "bg-gray-50 text-gray-600 hover:bg-gray-100"
                 }`}
                 data-testid="tab-notes"
               >
+                <Banknote className="w-4 h-4 mr-1.5 flex-shrink-0" />
                 Currency Notes
               </button>
               <button
                 type="button"
                 onClick={() => setProduct("card")}
-                className={`flex-1 py-2.5 text-sm font-medium transition-colors border-l border-gray-300 ${
+                className={`flex-1 py-2.5 text-sm font-medium transition-colors border-l border-gray-300 flex items-center justify-center ${
                   product === "card"
                     ? "bg-[#093562] text-white"
                     : "bg-gray-50 text-gray-600 hover:bg-gray-100"
                 }`}
                 data-testid="tab-card"
               >
+                <CreditCard className="w-4 h-4 mr-1.5 flex-shrink-0" />
                 Forex Card
               </button>
             </div>
@@ -306,7 +308,7 @@ export function ForexWidget() {
                     <div className="w-px h-3 bg-gray-300 flex-shrink-0" />
                     <div className="flex items-center gap-1 min-w-0" data-testid="persuasion-text">
                       {product === "card" ? (
-                        <Zap className="w-3 h-3 text-[#FFB427] flex-shrink-0" />
+                        <CreditCard className="w-3 h-3 text-[#093562] flex-shrink-0" />
                       ) : (
                         <Shield className="w-3 h-3 text-green-500 flex-shrink-0" />
                       )}
