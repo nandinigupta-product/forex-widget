@@ -430,34 +430,29 @@ export function ForexWidget() {
 
             <div>
               <label className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-1.5 block" data-testid="label-amount">AMOUNT ({currency})</label>
-              <div
-                className="grid grid-cols-1 md:grid-cols-[minmax(140px,1fr)_auto] gap-y-[10px] md:gap-x-4 items-center"
-                data-testid="amount-row"
-              >
-                <div>
-                  <input
-                    type="text"
-                    inputMode="numeric"
-                    pattern="[0-9,]*"
-                    maxLength={11}
-                    placeholder="1000"
-                    value={amount === "" ? "" : amount.toLocaleString('en-IN')}
-                    onChange={(e) => {
-                      const raw = e.target.value.replace(/[^0-9]/g, "");
-                      if (!raw) { setAmount(""); setHitLimit(false); return; }
-                      const num = Math.min(Number(raw), MAX_USD);
-                      setHitLimit(Number(raw) > MAX_USD);
-                      setAmount(num);
-                    }}
-                    className="w-full min-h-[56px] rounded-[10px] bg-white border border-gray-300 text-[22px] font-bold pl-4 pr-4 focus:outline-none focus:ring-2 focus:ring-[#093562]/30 focus:border-[#093562]"
-                    data-testid="input-amount"
-                  />
-                  {hitLimit && (
-                    <span className="text-[11px] text-gray-400 mt-1 block" data-testid="text-max-limit">
-                      Max: {MAX_USD.toLocaleString('en-IN')} {currency}
-                    </span>
-                  )}
-                </div>
+              <div data-testid="amount-row">
+                <input
+                  type="text"
+                  inputMode="numeric"
+                  pattern="[0-9,]*"
+                  maxLength={11}
+                  placeholder="Enter amount"
+                  value={amount === "" ? "" : amount.toLocaleString('en-IN')}
+                  onChange={(e) => {
+                    const raw = e.target.value.replace(/[^0-9]/g, "");
+                    if (!raw) { setAmount(""); setHitLimit(false); return; }
+                    const num = Math.min(Number(raw), MAX_USD);
+                    setHitLimit(Number(raw) > MAX_USD);
+                    setAmount(num);
+                  }}
+                  className="w-full h-12 rounded-md bg-white border border-gray-300 text-base font-semibold pl-3 pr-3 focus:outline-none focus:ring-2 focus:ring-[#093562]/30 focus:border-[#093562]"
+                  data-testid="input-amount"
+                />
+                {hitLimit && (
+                  <span className="text-[11px] text-gray-400 mt-1 block" data-testid="text-max-limit">
+                    Max: {MAX_USD.toLocaleString('en-IN')} {currency}
+                  </span>
+                )}
                 {selectedRate && activeRate > 0 && (() => {
                   const finalTotal = hasDiscount && discountedTotal ? Number(discountedTotal) : (convertedAmount ? Number(convertedAmount) : null);
                   const postDiscountRate = hasDiscount && amount && Number(amount) > 0
@@ -467,7 +462,7 @@ export function ForexWidget() {
                   const formatted = finalTotal ? formatINR(finalTotal) : null;
                   return (
                     <div
-                      className="text-left md:text-right pt-0.5 min-w-0"
+                      className="flex items-center justify-between mt-2 min-w-0"
                       data-testid="rate-display"
                     >
                       <div className="text-[13px] leading-[18px] text-gray-400" data-testid="text-rate">
@@ -483,13 +478,12 @@ export function ForexWidget() {
                       </div>
                       {formatted && (
                         <div
-                          className="flex items-baseline gap-2 mt-0.5 md:justify-end"
+                          className="flex items-baseline gap-1.5"
                           data-testid="text-converted-amount"
                         >
-                          <span className="text-[13px] font-extrabold text-[#093562] flex-shrink-0">Total:</span>
+                          <span className="text-[13px] font-bold text-[#093562] flex-shrink-0">Total:</span>
                           <span
-                            className="font-extrabold text-[#093562] whitespace-nowrap overflow-hidden text-ellipsis max-w-full"
-                            style={{ fontSize: "clamp(18px, 2.4vw, 24px)", lineHeight: "30px" }}
+                            className="text-[20px] font-extrabold text-[#093562] whitespace-nowrap"
                             title={formatted.full}
                             data-testid="text-total-value"
                           >
