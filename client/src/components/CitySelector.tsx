@@ -20,9 +20,10 @@ import { useCities } from "@/hooks/use-forex";
 interface CitySelectorProps {
   value: string;
   onChange: (value: string) => void;
+  compact?: boolean;
 }
 
-export function CitySelector({ value, onChange }: CitySelectorProps) {
+export function CitySelector({ value, onChange, compact }: CitySelectorProps) {
   const [open, setOpen] = React.useState(false);
   const { data: cities = [], isLoading } = useCities();
 
@@ -30,6 +31,80 @@ export function CitySelector({ value, onChange }: CitySelectorProps) {
 
   const topCities = cities.filter((c) => c.isTopCity);
   const otherCities = cities.filter((c) => !c.isTopCity);
+
+  if (compact) {
+    return (
+      <Popover open={open} onOpenChange={setOpen}>
+        <PopoverTrigger asChild>
+          <button
+            type="button"
+            className="flex items-center gap-1 text-blue-600 font-semibold text-[13px] hover:text-blue-700 transition-colors flex-shrink-0"
+            data-testid="select-city"
+          >
+            {isLoading ? "..." : selectedCity?.name || "Select City"}
+            <ChevronDown className="w-3.5 h-3.5" />
+          </button>
+        </PopoverTrigger>
+        <PopoverContent className="w-[280px] p-0 rounded-md shadow-lg border-gray-200" align="end">
+          <Command className="rounded-md">
+            <CommandInput placeholder="Search city..." className="h-10 text-sm" />
+            <CommandList className="max-h-[260px] scrollbar-thin">
+              <CommandEmpty>No city found.</CommandEmpty>
+              {topCities.length > 0 && (
+                <CommandGroup heading="Top Cities">
+                  {topCities.map((city) => (
+                    <CommandItem
+                      key={city.code}
+                      value={`${city.name} ${city.aliases.join(" ")}`}
+                      onSelect={() => {
+                        onChange(city.code);
+                        setOpen(false);
+                      }}
+                      className="cursor-pointer py-2 text-sm"
+                    >
+                      <Check
+                        className={cn(
+                          "mr-2 h-3.5 w-3.5 text-[#009688]",
+                          value === city.code ? "opacity-100" : "opacity-0"
+                        )}
+                      />
+                      {city.name}
+                    </CommandItem>
+                  ))}
+                </CommandGroup>
+              )}
+              {otherCities.length > 0 && (
+                <>
+                  <div className="h-px bg-gray-100 mx-2 my-1" />
+                  <CommandGroup heading="Other Cities">
+                    {otherCities.map((city) => (
+                      <CommandItem
+                        key={city.code}
+                        value={`${city.name} ${city.aliases.join(" ")}`}
+                        onSelect={() => {
+                          onChange(city.code);
+                          setOpen(false);
+                        }}
+                        className="cursor-pointer py-2 text-sm"
+                      >
+                        <Check
+                          className={cn(
+                            "mr-2 h-3.5 w-3.5 text-[#009688]",
+                            value === city.code ? "opacity-100" : "opacity-0"
+                          )}
+                        />
+                        {city.name}
+                      </CommandItem>
+                    ))}
+                  </CommandGroup>
+                </>
+              )}
+            </CommandList>
+          </Command>
+        </PopoverContent>
+      </Popover>
+    );
+  }
 
   return (
     <Popover open={open} onOpenChange={setOpen}>

@@ -1,6 +1,6 @@
 import * as React from "react";
 import { motion } from "framer-motion";
-import { ArrowRight, RefreshCw, Zap, Shield, TrendingDown, Clock, Timer, Truck } from "lucide-react";
+import { ArrowRight, RefreshCw, Zap, Shield, TrendingDown, Clock, Timer, Truck, ChevronDown } from "lucide-react";
 import { useLocation, useSearch } from "wouter";
 import { useToast } from "@/hooks/use-toast";
 import { useRates, useCreateLead } from "@/hooks/use-forex";
@@ -8,6 +8,24 @@ import { useRates, useCreateLead } from "@/hooks/use-forex";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { CitySelector } from "./CitySelector";
+import deliveryIcon from "@assets/image_1770969428621.png";
+
+const CARD_MIN_LOAD: Record<string, string> = {
+  USD: "Start with just 10 USD, top up later",
+  AED: "Start with just 40 AED, top up later",
+  THB: "Start with just 350 THB, top up later",
+  EUR: "Start with just 10 EUR, top up later",
+  SGD: "Start with just 15 SGD, top up later",
+  GBP: "Start with just 10 GBP, top up later",
+  HKD: "Start with just 75 HKD, top up later",
+  CHF: "Start with just 10 CHF, top up later",
+  SAR: "Start with just 40 SAR, top up later",
+  CAD: "Start with just 15 CAD, top up later",
+  ZAR: "Start with just 150 ZAR, top up later",
+  AUD: "Start with just 15 AUD, top up later",
+  JPY: "Start with just 10,000 JPY, top up later",
+  NZD: "Start with just 15 NZD, top up later",
+};
 
 function useCountdown() {
   const [minutes, setMinutes] = React.useState(14);
@@ -30,6 +48,18 @@ function useCountdown() {
   return { minutes, seconds };
 }
 
+function getDeliveryTat() {
+  const now = new Date();
+  const hour = now.getHours();
+  if (hour < 13) {
+    return { text: "Order now & get it today!", isSameDay: true };
+  }
+  const tomorrow = new Date(now);
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  const formatted = tomorrow.toLocaleDateString('en-IN', { day: 'numeric', month: 'short' });
+  return { text: `Delivery by ${formatted} (tomorrow)`, isSameDay: false };
+}
+
 export function ForexWidget() {
   const [location] = useLocation();
   const search = useSearch();
@@ -48,6 +78,7 @@ export function ForexWidget() {
   const { toast } = useToast();
 
   const countdown = useCountdown();
+  const deliveryTat = getDeliveryTat();
 
   const selectedRate = ratesData?.rates.find((r) => r.currency === currency);
   const activeRate = selectedRate ? (product === "card" ? selectedRate.cardRate : selectedRate.notesRate) : 0;
@@ -61,6 +92,10 @@ export function ForexWidget() {
     }, 2000);
     return () => clearInterval(interval);
   }, []);
+
+  const persuasionText = product === "card"
+    ? (CARD_MIN_LOAD[currency] || null)
+    : "RBI Authorized Dealers";
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -119,6 +154,16 @@ export function ForexWidget() {
 
         <div className="p-5">
           <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="flex items-center justify-between bg-blue-50 border border-blue-100 rounded-md px-3 py-2" data-testid="delivery-tat-bar">
+              <div className="flex items-center gap-2">
+                <Truck className="w-4 h-4 text-blue-600 flex-shrink-0" />
+                <span className="text-[12px] text-blue-800 font-semibold" data-testid="delivery-tat">
+                  {deliveryTat.text}
+                </span>
+              </div>
+              <CitySelector value={city} onChange={setCity} compact />
+            </div>
+
             <div className="flex rounded-md border border-gray-300 overflow-hidden" data-testid="tabs-product">
               <button
                 type="button"
@@ -146,32 +191,21 @@ export function ForexWidget() {
               </button>
             </div>
 
-            <div>
-              <label className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-1.5 block">Select City</label>
-              <CitySelector value={city} onChange={setCity} />
-              <div className="flex items-center gap-1.5 mt-1.5 px-0.5" data-testid="delivery-tat">
-                <Truck className="w-3 h-3 text-green-600 flex-shrink-0" />
-                {(() => {
-                  const now = new Date();
-                  const hour = now.getHours();
-                  if (hour < 13) {
-                    return (
-                      <span className="text-[11px] text-green-700 font-medium">
-                        Same-day doorstep delivery!
-                      </span>
-                    );
-                  }
-                  const tomorrow = new Date(now);
-                  tomorrow.setDate(tomorrow.getDate() + 1);
-                  const formatted = tomorrow.toLocaleDateString('en-IN', { day: 'numeric', month: 'short' });
-                  return (
-                    <span className="text-[11px] text-green-700 font-medium">
-                      Delivery by {formatted} (tomorrow)
-                    </span>
-                  );
-                })()}
+            {persuasionText && (
+              <div className="flex items-center gap-1.5 px-1" data-testid="persuasion-text">
+                {product === "card" ? (
+                  <>
+                    <Zap className="w-3 h-3 text-[#FFB427] flex-shrink-0" />
+                    <span className="text-[11px] text-gray-600 font-medium">{persuasionText}</span>
+                  </>
+                ) : (
+                  <>
+                    <Shield className="w-3 h-3 text-green-500 flex-shrink-0" />
+                    <span className="text-[11px] text-gray-600 font-medium">{persuasionText}</span>
+                  </>
+                )}
               </div>
-            </div>
+            )}
 
             <div>
               <label className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-1.5 block">Currency</label>
