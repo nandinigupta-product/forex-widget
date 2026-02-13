@@ -438,7 +438,7 @@ export function ForexWidget() {
                   <input
                     type="text"
                     inputMode="numeric"
-                    pattern="[0-9]*"
+                    pattern="[0-9,]*"
                     maxLength={11}
                     placeholder="1000"
                     value={amount === "" ? "" : amount.toLocaleString('en-IN')}
