@@ -47,10 +47,31 @@ export const api = {
             currency: z.string(),
             cardRate: z.number(),
             notesRate: z.number(),
+            notesComboRate: z.number().optional(),
             symbol: z.string(),
             name: z.string(),
             image: z.string().optional(),
           })),
+        }),
+      },
+    },
+  },
+  betterRate: {
+    get: {
+      method: 'POST' as const,
+      path: '/api/better-rate' as const,
+      input: z.object({
+        amount: z.number(),
+        currencyCode: z.string(),
+        product: z.enum(["CN", "PC"]),
+        cityCode: z.string(),
+      }),
+      responses: {
+        200: z.object({
+          discountCode: z.string().nullable(),
+          flatDiscount: z.number(),
+          improvedRate: z.number(),
+          originalRate: z.number(),
         }),
       },
     },

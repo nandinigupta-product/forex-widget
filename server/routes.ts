@@ -318,10 +318,11 @@ export async function registerRoutes(
         const currency = item.currency_code;
         const cardRate = parseFloat(item.bpc || item.b || "0");
         const notesRate = parseFloat(item.bcn || item.b || "0");
+        const notesComboRate = item.bcn_combo ? parseFloat(item.bcn_combo) : undefined;
         const name = item.currency_description || "";
         const image = item.currency_image || "";
         
-        return { currency, cardRate, notesRate, symbol: "", name, image };
+        return { currency, cardRate, notesRate, notesComboRate, symbol: "", name, image };
       }).filter((r: any) => (r.cardRate > 0 || r.notesRate > 0) && r.currency);
 
       formattedRates.sort((a: any, b: any) => {
@@ -340,6 +341,93 @@ export async function registerRoutes(
     } catch (error) {
       console.error("Failed to fetch rates from BookMyForex:", error);
       res.status(500).json({ message: "Failed to fetch exchange rates" });
+    }
+  });
+
+  // --- API: Get Better Rate (Discount Code) ---
+  app.post(api.betterRate.get.path, async (req, res) => {
+    try {
+      const input = api.betterRate.get.input.parse(req.body);
+      
+      const bmfResponse = await fetch('https://www.bookmyforex.com/api/secure/better-rate/v1/save-better-rate', {
+        method: 'POST',
+        headers: {
+          'accept': 'application/json, text/javascript, */*; q=0.01',
+          'content-type': 'application/json',
+          'origin': 'https://www.bookmyforex.com',
+          'referer': 'https://www.bookmyforex.com/',
+          'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36',
+          'x-requested-with': 'XMLHttpRequest'
+        },
+        body: JSON.stringify({
+          amount: input.amount,
+          currencyCode: input.currencyCode,
+          product: input.product,
+          cityCode: input.cityCode,
+          orderType: 'B'
+        })
+      });
+
+      const discountCode = bmfResponse.headers.get('response_token') || null;
+
+      const rateCardResponse = await fetch(`https://www.bookmyforex.com/api/secure/v1/get-full-rate-card?city_code=${input.cityCode}`, {
+        headers: {
+          'accept': 'application/json, text/javascript, */*; q=0.01',
+          'content-type': 'application/json',
+          'referer': 'https://www.bookmyforex.com/',
+          'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36',
+          'x-requested-with': 'XMLHttpRequest'
+        }
+      });
+
+      const rateData: any = await rateCardResponse.json();
+      const bmfRates: any[] = Array.isArray(rateData.result) ? rateData.result : [];
+      const currencyRate = bmfRates.find((r: any) => r.currency_code === input.currencyCode);
+
+      if (!currencyRate) {
+        return res.status(404).json({ message: "Currency rate not found" });
+      }
+
+      let originalRate: number;
+      let improvedRate: number;
+      let flatDiscount: number;
+
+      if (input.product === "CN") {
+        originalRate = parseFloat(currencyRate.bcn || "0");
+        const comboRate = currencyRate.bcn_combo ? parseFloat(currencyRate.bcn_combo) : 0;
+        if (comboRate > 0 && comboRate < originalRate) {
+          improvedRate = comboRate;
+          flatDiscount = originalRate - improvedRate;
+        } else {
+          improvedRate = originalRate;
+          flatDiscount = 0;
+        }
+      } else {
+        originalRate = parseFloat(currencyRate.bpc || "0");
+        const bcn = parseFloat(currencyRate.bcn || "0");
+        const bcnCombo = currencyRate.bcn_combo ? parseFloat(currencyRate.bcn_combo) : 0;
+        if (bcn > 0 && bcnCombo > 0 && bcnCombo < bcn && originalRate > 0) {
+          const discountRatio = (bcn - bcnCombo) / bcn;
+          flatDiscount = parseFloat((originalRate * discountRatio).toFixed(4));
+          improvedRate = parseFloat((originalRate - flatDiscount).toFixed(4));
+        } else {
+          improvedRate = originalRate;
+          flatDiscount = 0;
+        }
+      }
+
+      res.json({
+        discountCode: flatDiscount > 0 ? discountCode : null,
+        flatDiscount: parseFloat(flatDiscount.toFixed(4)),
+        improvedRate,
+        originalRate
+      });
+    } catch (err) {
+      if (err instanceof z.ZodError) {
+        return res.status(400).json({ message: err.errors[0].message });
+      }
+      console.error("Failed to get better rate:", err);
+      res.status(500).json({ message: "Failed to fetch better rate" });
     }
   });
 

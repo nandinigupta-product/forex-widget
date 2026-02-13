@@ -30,6 +30,24 @@ export function useRates(cityCode?: string) {
   });
 }
 
+export function useBetterRate(params: { amount: number; currencyCode: string; product: "CN" | "PC"; cityCode: string } | null) {
+  return useQuery({
+    queryKey: [api.betterRate.get.path, params?.amount, params?.currencyCode, params?.product, params?.cityCode],
+    queryFn: async () => {
+      if (!params || !params.amount || params.amount <= 0) return null;
+      const res = await fetch(api.betterRate.get.path, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(params),
+      });
+      if (!res.ok) return null;
+      return api.betterRate.get.responses[200].parse(await res.json());
+    },
+    enabled: !!params && params.amount > 0,
+    staleTime: 5 * 60 * 1000,
+  });
+}
+
 // === MUTATION HOOKS ===
 
 export function useCreateLead() {

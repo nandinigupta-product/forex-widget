@@ -1,9 +1,9 @@
 import * as React from "react";
 import { motion } from "framer-motion";
-import { ArrowRight, RefreshCw, Zap, Shield, TrendingDown, Clock, Timer, Truck, ChevronDown, IndianRupee, CreditCard, Banknote } from "lucide-react";
+import { ArrowRight, RefreshCw, Zap, Shield, TrendingDown, Clock, Timer, Truck, ChevronDown, IndianRupee, CreditCard, Banknote, Tag, BadgePercent } from "lucide-react";
 import { useLocation, useSearch } from "wouter";
 import { useToast } from "@/hooks/use-toast";
-import { useRates, useCreateLead } from "@/hooks/use-forex";
+import { useRates, useCreateLead, useBetterRate } from "@/hooks/use-forex";
 
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -200,11 +200,21 @@ export function ForexWidget() {
   const { mutate: createLead, isPending } = useCreateLead();
   const { toast } = useToast();
 
+  const betterRateParams = amount && Number(amount) > 0 ? {
+    amount: Number(amount),
+    currencyCode: currency,
+    product: product === "card" ? "PC" as const : "CN" as const,
+    cityCode: city,
+  } : null;
+  const { data: betterRateData } = useBetterRate(betterRateParams);
+
   const countdown = useCountdown();
   const deliveryTat = getDeliveryTat();
 
   const selectedRate = ratesData?.rates.find((r) => r.currency === currency);
-  const activeRate = selectedRate ? (product === "card" ? selectedRate.cardRate : selectedRate.notesRate) : 0;
+  const originalRate = selectedRate ? (product === "card" ? selectedRate.cardRate : selectedRate.notesRate) : 0;
+  const hasDiscount = betterRateData && betterRateData.flatDiscount > 0 && betterRateData.improvedRate > 0 && betterRateData.discountCode;
+  const activeRate = hasDiscount ? betterRateData.improvedRate : originalRate;
   const convertedAmount = amount && activeRate ? (Number(amount) * activeRate).toFixed(2) : null;
 
   const savings = amount && activeRate ? (Number(amount) * activeRate * 0.035).toFixed(0) : null;
@@ -379,9 +389,20 @@ export function ForexWidget() {
                 />
                 {selectedRate && activeRate > 0 && (
                   <div className="absolute right-3 top-1/2 -translate-y-1/2 text-right" data-testid="rate-display">
-                    <span className="text-[11px] text-gray-400 block leading-tight" data-testid="text-rate">
-                      1 {currency} = ₹{activeRate.toFixed(2)}
-                    </span>
+                    {hasDiscount ? (
+                      <>
+                        <span className="text-[10px] text-gray-400 line-through block leading-tight" data-testid="text-original-rate">
+                          ₹{originalRate.toFixed(2)}
+                        </span>
+                        <span className="text-[11px] text-green-600 font-semibold block leading-tight" data-testid="text-rate">
+                          1 {currency} = ₹{activeRate.toFixed(2)}
+                        </span>
+                      </>
+                    ) : (
+                      <span className="text-[11px] text-gray-400 block leading-tight" data-testid="text-rate">
+                        1 {currency} = ₹{activeRate.toFixed(2)}
+                      </span>
+                    )}
                     {convertedAmount && (
                       <span className="text-xs font-bold text-[#093562] block leading-tight" data-testid="text-converted-amount">
                         = ₹{Number(convertedAmount).toLocaleString('en-IN', { minimumFractionDigits: 2 })}
@@ -391,6 +412,25 @@ export function ForexWidget() {
                 )}
               </div>
             </div>
+
+            {hasDiscount && betterRateData.discountCode && (
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                className="flex items-center gap-2 bg-emerald-50 border border-emerald-200 border-dashed rounded-md px-3 py-2"
+                data-testid="discount-banner"
+              >
+                <Tag className="w-4 h-4 text-emerald-600 flex-shrink-0" />
+                <div className="flex-1 min-w-0">
+                  <span className="text-[11px] text-emerald-700 font-medium block leading-tight">
+                    Discount Applied: <span className="font-bold font-mono bg-emerald-100 px-1.5 py-0.5 rounded text-emerald-800">{betterRateData.discountCode}</span>
+                  </span>
+                  <span className="text-[10px] text-emerald-600 block leading-tight mt-0.5">
+                    Flat ₹{betterRateData.flatDiscount.toFixed(2)}/{currency} off applied
+                  </span>
+                </div>
+              </motion.div>
+            )}
 
             {savings && Number(savings) > 0 && (
               <motion.div
