@@ -4,10 +4,16 @@ export default function Home() {
   return (
     <div className="relative min-h-screen w-full overflow-hidden">
       <div
-        className="absolute inset-0 w-full h-full bg-cover bg-top bg-no-repeat"
-        style={{ backgroundImage: "url('/images/bmf-bg.png')" }}
+        className="absolute inset-0 w-full h-full bg-cover bg-top bg-no-repeat hidden sm:block"
+        style={{ backgroundImage: "url('/images/bmf-desktop.png')" }}
         aria-hidden="true"
-        data-testid="bg-image"
+        data-testid="bg-image-desktop"
+      />
+      <div
+        className="absolute inset-0 w-full h-full bg-cover bg-top bg-no-repeat block sm:hidden"
+        style={{ backgroundImage: "url('/images/bmf-mobile.png')" }}
+        aria-hidden="true"
+        data-testid="bg-image-mobile"
       />
       <div
         className="absolute inset-0 bg-black/50 backdrop-blur-[2px]"
