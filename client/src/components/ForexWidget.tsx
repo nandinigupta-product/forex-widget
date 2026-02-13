@@ -419,46 +419,34 @@ export function ForexWidget() {
 
             <div>
               <label className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-1.5 block" data-testid="label-amount">AMOUNT ({currency})</label>
-              <div className="flex flex-col min-[480px]:flex-row min-[480px]:items-stretch gap-2 min-[480px]:gap-3">
-                <div className="flex-1 min-w-0">
-                  <input
-                    type="number"
-                    placeholder="1000"
-                    min="1"
-                    value={amount}
-                    onChange={(e) => setAmount(e.target.value ? Number(e.target.value) : "")}
-                    className="w-full h-12 rounded-md bg-white border border-gray-300 text-base font-semibold pl-3 pr-3 focus:outline-none focus:ring-2 focus:ring-[#093562]/30 focus:border-[#093562] [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                    data-testid="input-amount"
-                  />
-                </div>
-                {selectedRate && activeRate > 0 && (
-                  <div
-                    className="min-[480px]:min-w-[160px] min-[480px]:max-w-[220px] flex flex-col justify-center min-[480px]:text-right"
-                    data-testid="rate-display"
-                  >
-                    <span className="text-[12px] leading-tight text-gray-400" data-testid="text-rate">
-                      Rate: ₹{activeRate.toFixed(2)}/{currency}
-                    </span>
-                    {convertedAmount && (
-                      <div className="leading-tight mt-0.5">
-                        {hasDiscount && discountedTotal ? (
-                          <>
-                            <span className="text-[11px] text-gray-400 line-through mr-1" data-testid="text-original-total">
-                              ₹{Number(convertedAmount).toLocaleString('en-IN', { minimumFractionDigits: 2 })}
-                            </span>
-                            <span className="text-[18px] min-[480px]:text-[20px] font-bold text-[#093562] whitespace-nowrap" data-testid="text-converted-amount">
-                              You&nbsp;pay:&nbsp;₹{Number(discountedTotal).toLocaleString('en-IN', { minimumFractionDigits: 2 })}
-                            </span>
-                          </>
-                        ) : (
-                          <span className="text-[18px] min-[480px]:text-[20px] font-bold text-[#093562] whitespace-nowrap" data-testid="text-converted-amount">
-                            You&nbsp;pay:&nbsp;₹{Number(convertedAmount).toLocaleString('en-IN', { minimumFractionDigits: 2 })}
-                          </span>
-                        )}
-                      </div>
-                    )}
-                  </div>
-                )}
+              <div className="grid grid-cols-1 min-[480px]:grid-cols-[1fr_auto] gap-3 items-center">
+                <input
+                  type="number"
+                  placeholder="1000"
+                  min="1"
+                  value={amount}
+                  onChange={(e) => setAmount(e.target.value ? Number(e.target.value) : "")}
+                  className="w-full min-w-[220px] max-w-[360px] h-12 rounded-md bg-white border border-gray-300 text-base font-semibold pl-3 pr-3 focus:outline-none focus:ring-2 focus:ring-[#093562]/30 focus:border-[#093562] [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                  data-testid="input-amount"
+                />
+                {selectedRate && activeRate > 0 && (() => {
+                  const finalTotal = hasDiscount && discountedTotal ? discountedTotal : convertedAmount;
+                  return (
+                    <div
+                      className="text-left min-[480px]:text-right"
+                      data-testid="rate-display"
+                    >
+                      <span className="text-[12px] leading-tight text-gray-400 block" data-testid="text-rate">
+                        Rate: ₹{activeRate.toFixed(2)}/{currency}
+                      </span>
+                      {finalTotal && (
+                        <span className="text-[18px] min-[480px]:text-[20px] font-bold text-[#093562] min-[480px]:whitespace-nowrap block mt-0.5" data-testid="text-converted-amount">
+                          You&nbsp;pay: ₹{Number(finalTotal).toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                        </span>
+                      )}
+                    </div>
+                  );
+                })()}
               </div>
             </div>
 
