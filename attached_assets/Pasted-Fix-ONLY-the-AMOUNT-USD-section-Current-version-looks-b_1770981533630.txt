@@ -1,0 +1,71 @@
+Fix ONLY the “AMOUNT (USD)” section. Current version looks broken because the summary is not on-grid and the font sizing/spacing is inconsistent. Implement the below EXACT specs.
+
+GOAL (must satisfy)
+- Amount input stays clean (USD only).
+- Show (a) Total INR, (b) Post-discount rate, and optionally (c) Original rate (struck) — all aligned to the same grid.
+- No element should look “floating” or off-grid on desktop or mobile.
+
+A) LAYOUT (responsive grid)
+1) Wrap the amount input + summary in a single container .amountRow
+2) Desktop/tablet (>=768px):
+   - Use CSS GRID:
+     grid-template-columns: minmax(260px, 1fr) minmax(220px, 280px);
+     column-gap: 16px;
+     align-items: center;
+3) Small screens (<768px):
+   - Stack:
+     grid-template-columns: 1fr;
+     row-gap: 10px;
+   - Summary goes BELOW input and becomes left-aligned.
+
+B) INPUT FIELD
+- Label: “AMOUNT (USD)”
+- Input width: 100%
+- Input min-height: 56px
+- Font-size: 22px; font-weight: 700
+- Border radius: 10px
+- Do NOT render any rate/total text inside the input container.
+
+C) SUMMARY BLOCK (right column) — show EXACTLY 2 rows
+Use a summary block with two lines so it doesn’t look messy.
+
+Row 1 (Rate line):
+- Text: “Rate: ₹{post_discount_rate}/USD”
+- If original rate exists and is higher:
+  show “₹{original_rate}/USD” struck-through BEFORE the post rate (same line).
+  Example:
+  Rate: ₹91.26/USD (struck)  ₹91.12/USD
+- Styling:
+  font-size: 13px
+  line-height: 18px
+  color: muted grey
+  post-discount rate should be slightly darker than muted (but still smaller than total)
+
+Row 2 (Total line) — PRIMARY
+- Text: “Total: ₹{final_total_inr}”
+  (use “Total” instead of “You pay” if you prefer; but keep it consistent)
+- Styling:
+  font-size: 24px (desktop), 22px (mobile)
+  font-weight: 800
+  line-height: 30px
+  color: primary navy/black
+- Keep “Total: ₹xx” on ONE line on desktop (use nowrap)
+- On mobile, allow wrap only if absolutely needed.
+
+Alignment:
+- Desktop: summary block is right-aligned (text-align:right) and vertically centered with input.
+- Mobile: summary block is left-aligned.
+
+D) SPACING + GRID CONSISTENCY (important)
+- The summary block must start on the same horizontal baseline grid as the input (no negative margins).
+- Add padding-top: 2px to summary if needed for optical alignment, but avoid manual offsets.
+
+E) REMOVE/AVOID THESE IN AMOUNT SECTION
+- Do NOT show struck-through TOTAL INR (old total). Only show original rate (optional) and post-discount rate.
+- Do NOT show cashback/coupon “Copy code” inside this Amount section.
+
+ACCEPTANCE CHECK
+- Desktop: input and summary sit in one row; “Total” is prominent; rate is small above it; everything aligns cleanly.
+- Mobile: label -> input -> summary (rate then total), no overlap, no off-grid spacing.
+
+Implement as HTML/CSS changes only in the Amount block; keep rest of widget unchanged.

@@ -419,30 +419,48 @@ export function ForexWidget() {
 
             <div>
               <label className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-1.5 block" data-testid="label-amount">AMOUNT ({currency})</label>
-              <div className="grid grid-cols-1 min-[480px]:grid-cols-[1fr_auto] gap-3 items-center">
+              <div
+                className="grid grid-cols-1 md:grid-cols-[minmax(140px,1fr)_auto] gap-y-[10px] md:gap-x-4 items-center"
+                data-testid="amount-row"
+              >
                 <input
                   type="number"
                   placeholder="1000"
                   min="1"
                   value={amount}
                   onChange={(e) => setAmount(e.target.value ? Number(e.target.value) : "")}
-                  className="w-full min-w-[220px] max-w-[360px] h-12 rounded-md bg-white border border-gray-300 text-base font-semibold pl-3 pr-3 focus:outline-none focus:ring-2 focus:ring-[#093562]/30 focus:border-[#093562] [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                  className="w-full min-h-[56px] rounded-[10px] bg-white border border-gray-300 text-[22px] font-bold pl-4 pr-4 focus:outline-none focus:ring-2 focus:ring-[#093562]/30 focus:border-[#093562] [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                   data-testid="input-amount"
                 />
                 {selectedRate && activeRate > 0 && (() => {
                   const finalTotal = hasDiscount && discountedTotal ? discountedTotal : convertedAmount;
+                  const postDiscountRate = hasDiscount && amount && Number(amount) > 0
+                    ? ((Number(convertedAmount) - betterRateData.flatDiscount) / Number(amount))
+                    : null;
+                  const showOriginalStrike = postDiscountRate !== null && postDiscountRate < activeRate;
                   return (
                     <div
-                      className="text-left min-[480px]:text-right"
+                      className="text-left md:text-right pt-0.5"
                       data-testid="rate-display"
                     >
-                      <span className="text-[12px] leading-tight text-gray-400 block" data-testid="text-rate">
-                        Rate: ₹{activeRate.toFixed(2)}/{currency}
-                      </span>
-                      {finalTotal && (
-                        <span className="text-[18px] min-[480px]:text-[20px] font-bold text-[#093562] min-[480px]:whitespace-nowrap block mt-0.5" data-testid="text-converted-amount">
-                          You&nbsp;pay: ₹{Number(finalTotal).toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                      <div className="text-[13px] leading-[18px] text-gray-400" data-testid="text-rate">
+                        <span>Rate: </span>
+                        {showOriginalStrike && (
+                          <span className="line-through mr-1" data-testid="text-original-rate">
+                            ₹{activeRate.toFixed(2)}/{currency}
+                          </span>
+                        )}
+                        <span className={showOriginalStrike ? "text-gray-600" : ""} data-testid="text-post-rate">
+                          ₹{(postDiscountRate ?? activeRate).toFixed(2)}/{currency}
                         </span>
+                      </div>
+                      {finalTotal && (
+                        <div
+                          className="text-[22px] md:text-[24px] font-extrabold leading-[30px] text-[#093562] md:whitespace-nowrap mt-0.5"
+                          data-testid="text-converted-amount"
+                        >
+                          Total:&nbsp;₹{Number(finalTotal).toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                        </div>
                       )}
                     </div>
                   );
