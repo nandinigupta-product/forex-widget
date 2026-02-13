@@ -164,6 +164,15 @@ function detectContextFromUrl(): { product?: "card" | "note" | "both"; city?: st
   return result;
 }
 
+function formatINR(value: number): { display: string; full: string } {
+  const full = "₹" + value.toLocaleString('en-IN', { maximumFractionDigits: 2 });
+  if (value >= 10000000) {
+    const crores = value / 10000000;
+    return { display: "₹" + crores.toFixed(2) + " Cr", full };
+  }
+  return { display: full, full };
+}
+
 function getDeliveryTat() {
   const now = new Date();
   const hour = now.getHours();
@@ -234,7 +243,9 @@ export function ForexWidget() {
   const [product, setProduct] = React.useState<"note" | "card">(defaultProduct);
   const [city, setCity] = React.useState(defaultCity);
   const [currency, setCurrency] = React.useState(defaultCurrency);
+  const MAX_USD = 9999999;
   const [amount, setAmount] = React.useState<number | "">(1000);
+  const [hitLimit, setHitLimit] = React.useState(false);
   const [pulseButton, setPulseButton] = React.useState(true);
 
   const { data: ratesData, isLoading: isLoadingRates } = useRates(city);
@@ -423,24 +434,40 @@ export function ForexWidget() {
                 className="grid grid-cols-1 md:grid-cols-[minmax(140px,1fr)_auto] gap-y-[10px] md:gap-x-4 items-center"
                 data-testid="amount-row"
               >
-                <input
-                  type="number"
-                  placeholder="1000"
-                  min="1"
-                  value={amount}
-                  onChange={(e) => setAmount(e.target.value ? Number(e.target.value) : "")}
-                  className="w-full min-h-[56px] rounded-[10px] bg-white border border-gray-300 text-[22px] font-bold pl-4 pr-4 focus:outline-none focus:ring-2 focus:ring-[#093562]/30 focus:border-[#093562] [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                  data-testid="input-amount"
-                />
+                <div>
+                  <input
+                    type="text"
+                    inputMode="numeric"
+                    pattern="[0-9]*"
+                    maxLength={11}
+                    placeholder="1000"
+                    value={amount === "" ? "" : amount.toLocaleString('en-IN')}
+                    onChange={(e) => {
+                      const raw = e.target.value.replace(/[^0-9]/g, "");
+                      if (!raw) { setAmount(""); setHitLimit(false); return; }
+                      const num = Math.min(Number(raw), MAX_USD);
+                      setHitLimit(Number(raw) > MAX_USD);
+                      setAmount(num);
+                    }}
+                    className="w-full min-h-[56px] rounded-[10px] bg-white border border-gray-300 text-[22px] font-bold pl-4 pr-4 focus:outline-none focus:ring-2 focus:ring-[#093562]/30 focus:border-[#093562]"
+                    data-testid="input-amount"
+                  />
+                  {hitLimit && (
+                    <span className="text-[11px] text-gray-400 mt-1 block" data-testid="text-max-limit">
+                      Max: {MAX_USD.toLocaleString('en-IN')} {currency}
+                    </span>
+                  )}
+                </div>
                 {selectedRate && activeRate > 0 && (() => {
-                  const finalTotal = hasDiscount && discountedTotal ? discountedTotal : convertedAmount;
+                  const finalTotal = hasDiscount && discountedTotal ? Number(discountedTotal) : (convertedAmount ? Number(convertedAmount) : null);
                   const postDiscountRate = hasDiscount && amount && Number(amount) > 0
                     ? ((Number(convertedAmount) - betterRateData.flatDiscount) / Number(amount))
                     : null;
                   const showOriginalStrike = postDiscountRate !== null && postDiscountRate < activeRate;
+                  const formatted = finalTotal ? formatINR(finalTotal) : null;
                   return (
                     <div
-                      className="text-left md:text-right pt-0.5"
+                      className="text-left md:text-right pt-0.5 min-w-0"
                       data-testid="rate-display"
                     >
                       <div className="text-[13px] leading-[18px] text-gray-400" data-testid="text-rate">
@@ -454,12 +481,20 @@ export function ForexWidget() {
                           ₹{(postDiscountRate ?? activeRate).toFixed(2)}/{currency}
                         </span>
                       </div>
-                      {finalTotal && (
+                      {formatted && (
                         <div
-                          className="text-[22px] md:text-[24px] font-extrabold leading-[30px] text-[#093562] md:whitespace-nowrap mt-0.5"
+                          className="flex items-baseline gap-2 mt-0.5 md:justify-end"
                           data-testid="text-converted-amount"
                         >
-                          Total:&nbsp;₹{Number(finalTotal).toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                          <span className="text-[13px] font-extrabold text-[#093562] flex-shrink-0">Total:</span>
+                          <span
+                            className="font-extrabold text-[#093562] whitespace-nowrap overflow-hidden text-ellipsis max-w-full"
+                            style={{ fontSize: "clamp(18px, 2.4vw, 24px)", lineHeight: "30px" }}
+                            title={formatted.full}
+                            data-testid="text-total-value"
+                          >
+                            {formatted.display}
+                          </span>
                         </div>
                       )}
                     </div>

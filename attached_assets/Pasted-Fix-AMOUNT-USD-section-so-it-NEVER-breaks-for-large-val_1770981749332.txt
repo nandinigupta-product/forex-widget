@@ -1,0 +1,51 @@
+Fix “AMOUNT (USD)” section so it NEVER breaks for large values (both the USD input and the INR Total).
+
+Problem: long numbers overflow + push layout off-grid.
+Solution: enforce input constraints + responsive typography + truncation rules for the Total line.
+
+Implement these EXACT specs:
+
+1) USD INPUT CONSTRAINTS (must)
+- Input type="text" but allow digits only.
+- Add maxLength = 7 (or 8 if business allows) so absurd values can’t be typed.
+  Example: allow up to 1,000,000 or 9,999,999 USD.
+- Add inputmode="numeric" and pattern="[0-9]*"
+- On input: strip non-digits, and clamp to maxUSD (e.g., 9999999).
+- Show helper text below input (muted): “Max: {maxUSDFormatted} USD” only if user hits limit.
+
+2) INR TOTAL FORMATTING (must)
+- Format Total INR with Indian grouping BUT without decimals if not needed:
+  - Use “₹9,12,58,80,000” (no .00)
+- If decimals are required, keep to 2 but ensure it doesn’t overflow.
+
+3) TOTAL TEXT OVERFLOW HANDLING (must)
+- Total line must NEVER overflow the card.
+- Use:
+  - display:flex; align-items:baseline; gap:8px;
+  - Total label fixed, value flexible.
+  - Total value:
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+- Add a tooltip (title attribute) on the Total value showing full amount on hover.
+
+4) RESPONSIVE FONT SCALING (must)
+- Use clamp() so Total font scales down for long numbers:
+  - Total font-size: clamp(18px, 2.4vw, 24px);
+- Rate font-size fixed: 13px.
+- Keep strong hierarchy but auto-shrink safely.
+
+5) GRID RULES (keep stable)
+- Desktop/tablet: grid-template-columns: minmax(260px, 1fr) minmax(220px, 320px);
+- Mobile: stack (<768px).
+
+6) OPTIONAL (best)
+- If Total value exceeds a threshold (e.g., >= 1 crore INR), show compact format:
+  - “₹9.13 Cr” with a small “(₹9,12,58,80,000)” on hover/tooltip.
+  This prevents visual break while retaining accuracy.
+
+Acceptance:
+- Typing 7–8 digits in USD does not break input box.
+- Total line never wraps into multiple lines or overflows; it shrinks/ellipsizes and shows full value on hover.
+- Layout remains aligned on desktop and stacks cleanly on mobile.
