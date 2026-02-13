@@ -147,26 +147,26 @@ export function ForexWidget() {
           </motion.div>
         </div>
 
-        <div className="bg-[#093562] px-5 pt-6 pb-3 rounded-t-md">
+        <div className="bg-[#093562] px-4 sm:px-5 pt-5 pb-3 rounded-t-md">
           <h2 className="text-lg font-semibold text-white" data-testid="text-widget-title">Buy Forex Online</h2>
-          <div className="flex items-center gap-4 mt-2 flex-wrap" data-testid="header-callouts">
-            <div className="flex items-center gap-1.5">
-              <TrendingDown className="w-3.5 h-3.5 text-[#FFB427]" />
-              <span className="text-[13px] text-white font-semibold">Best Rates</span>
+          <div className="flex items-center justify-between mt-2" data-testid="header-callouts">
+            <div className="flex items-center gap-1">
+              <TrendingDown className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-[#FFB427] flex-shrink-0" />
+              <span className="text-[11px] sm:text-[13px] text-white font-semibold whitespace-nowrap">Best Rates</span>
             </div>
-            <div className="flex items-center gap-1.5">
-              <Truck className="w-3.5 h-3.5 text-[#FFB427]" />
-              <span className="text-[13px] text-white font-semibold">Doorstep Delivery</span>
+            <div className="flex items-center gap-1">
+              <Truck className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-[#FFB427] flex-shrink-0" />
+              <span className="text-[11px] sm:text-[13px] text-white font-semibold whitespace-nowrap">Doorstep Delivery</span>
             </div>
-            <div className="flex items-center gap-1.5">
-              <IndianRupee className="w-3.5 h-3.5 text-[#FFB427]" />
-              <span className="text-[13px] text-white font-semibold">Pay on Delivery</span>
+            <div className="flex items-center gap-1">
+              <IndianRupee className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-[#FFB427] flex-shrink-0" />
+              <span className="text-[11px] sm:text-[13px] text-white font-semibold whitespace-nowrap">Pay on Delivery</span>
             </div>
           </div>
         </div>
 
-        <div className="p-5">
-          <form onSubmit={handleSubmit} className="space-y-4">
+        <div className="p-4 sm:p-5">
+          <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-4">
             <div className="flex rounded-md border border-gray-300 overflow-hidden" data-testid="tabs-product">
               <button
                 type="button"
@@ -296,21 +296,21 @@ export function ForexWidget() {
                 </Button>
               </motion.div>
 
-              <div className="flex items-center justify-center gap-3 pt-1 flex-wrap" data-testid="trust-badges">
-                <div className="flex items-center gap-1">
-                  <Zap className="w-3 h-3 text-[#FFB427]" />
-                  <span className="text-[10px] font-semibold text-gray-500 uppercase tracking-wide">Zero Forex Markup</span>
+              <div className="flex items-center justify-center gap-2 sm:gap-3 pt-1" data-testid="trust-badges">
+                <div className="flex items-center gap-1 flex-shrink-0">
+                  <Zap className="w-3 h-3 text-[#FFB427] flex-shrink-0" />
+                  <span className="text-[9px] sm:text-[10px] font-semibold text-gray-500 uppercase tracking-wide whitespace-nowrap">Zero Forex Markup</span>
                 </div>
                 {persuasionText && (
                   <>
-                    <div className="w-px h-3 bg-gray-300" />
-                    <div className="flex items-center gap-1" data-testid="persuasion-text">
+                    <div className="w-px h-3 bg-gray-300 flex-shrink-0" />
+                    <div className="flex items-center gap-1 min-w-0" data-testid="persuasion-text">
                       {product === "card" ? (
                         <Zap className="w-3 h-3 text-[#FFB427] flex-shrink-0" />
                       ) : (
                         <Shield className="w-3 h-3 text-green-500 flex-shrink-0" />
                       )}
-                      <span className="text-[10px] font-semibold text-gray-500 uppercase tracking-wide">{persuasionText}</span>
+                      <span className="text-[9px] sm:text-[10px] font-semibold text-gray-500 uppercase tracking-wide whitespace-nowrap truncate">{persuasionText}</span>
                     </div>
                   </>
                 )}
