@@ -133,10 +133,10 @@ export function ForexWidget() {
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.35, ease: "easeOut" }}
-      className="w-full max-w-[420px] mx-auto"
+      className="w-full max-w-none md:max-w-[420px] mx-auto"
     >
-      <div className="bg-white rounded-md shadow-lg border border-gray-200 overflow-visible relative">
-        <div className="absolute -top-3 left-1/2 -translate-x-1/2 z-10">
+      <div className="bg-white md:rounded-md md:shadow-lg md:border md:border-gray-200 overflow-visible relative min-h-screen md:min-h-0">
+        <div className="absolute -top-3 left-1/2 -translate-x-1/2 z-10 hidden md:block">
           <motion.div
             initial={{ scale: 0.9 }}
             animate={{ scale: 1 }}
@@ -147,9 +147,19 @@ export function ForexWidget() {
           </motion.div>
         </div>
 
-        <div className="bg-[#093562] px-5 pt-6 pb-3 rounded-t-md">
-          <h2 className="text-lg font-semibold text-white" data-testid="text-widget-title">Buy Forex Online</h2>
-          <div className="flex items-center gap-4 mt-2 flex-wrap" data-testid="header-callouts">
+        <div className="bg-[#093562] px-4 sm:px-5 pt-5 sm:pt-6 pb-3 md:rounded-t-md">
+          <div className="md:hidden mb-2">
+            <motion.span
+              initial={{ scale: 0.9 }}
+              animate={{ scale: 1 }}
+              className="inline-block bg-red-500 text-white text-[10px] font-bold uppercase tracking-wider px-3 py-1 rounded-full shadow-md whitespace-nowrap"
+              data-testid="badge-limited-mobile"
+            >
+              Limited Time Offer
+            </motion.span>
+          </div>
+          <h2 className="text-xl sm:text-lg font-semibold text-white" data-testid="text-widget-title">Buy Forex Online</h2>
+          <div className="flex items-center gap-3 sm:gap-4 mt-2 flex-wrap" data-testid="header-callouts">
             <div className="flex items-center gap-1.5">
               <TrendingDown className="w-3.5 h-3.5 text-[#FFB427]" />
               <span className="text-[13px] text-white font-semibold">Best Rates</span>
@@ -165,13 +175,13 @@ export function ForexWidget() {
           </div>
         </div>
 
-        <div className="p-5">
+        <div className="p-4 sm:p-5">
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="flex rounded-md border border-gray-300 overflow-hidden" data-testid="tabs-product">
               <button
                 type="button"
                 onClick={() => setProduct("note")}
-                className={`flex-1 py-2.5 text-sm font-medium transition-colors ${
+                className={`flex-1 py-3 sm:py-2.5 text-sm font-medium transition-colors ${
                   product === "note"
                     ? "bg-[#093562] text-white"
                     : "bg-gray-50 text-gray-600 hover:bg-gray-100"
@@ -183,7 +193,7 @@ export function ForexWidget() {
               <button
                 type="button"
                 onClick={() => setProduct("card")}
-                className={`flex-1 py-2.5 text-sm font-medium transition-colors border-l border-gray-300 ${
+                className={`flex-1 py-3 sm:py-2.5 text-sm font-medium transition-colors border-l border-gray-300 ${
                   product === "card"
                     ? "bg-[#093562] text-white"
                     : "bg-gray-50 text-gray-600 hover:bg-gray-100"
@@ -207,7 +217,7 @@ export function ForexWidget() {
             <div>
               <label className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-1.5 block">Currency</label>
               <Select value={currency} onValueChange={setCurrency} disabled={isLoadingRates}>
-                <SelectTrigger className="h-10 rounded-md bg-white border-gray-300 text-sm" data-testid="select-currency">
+                <SelectTrigger className="h-11 sm:h-10 rounded-md bg-white border-gray-300 text-sm" data-testid="select-currency">
                   <SelectValue>
                     {selectedRate ? (
                       <span className="flex items-center gap-2">
@@ -239,7 +249,7 @@ export function ForexWidget() {
                   min="1"
                   value={amount}
                   onChange={(e) => setAmount(e.target.value ? Number(e.target.value) : "")}
-                  className="w-full h-12 rounded-md bg-white border border-gray-300 text-base font-semibold pl-3 pr-3 focus:outline-none focus:ring-2 focus:ring-[#093562]/30 focus:border-[#093562] [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                  className="w-full h-13 sm:h-12 rounded-md bg-white border border-gray-300 text-base font-semibold pl-3 pr-3 focus:outline-none focus:ring-2 focus:ring-[#093562]/30 focus:border-[#093562] [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                   data-testid="input-amount"
                 />
                 {selectedRate && activeRate > 0 && (
