@@ -147,9 +147,22 @@ export function ForexWidget() {
           </motion.div>
         </div>
 
-        <div className="bg-[#093562] px-5 pt-6 pb-4 rounded-t-md">
+        <div className="bg-[#093562] px-5 pt-6 pb-3 rounded-t-md">
           <h2 className="text-lg font-semibold text-white" data-testid="text-widget-title">Buy Forex Online</h2>
-          <p className="text-blue-200 text-xs mt-0.5">Best rates guaranteed, delivered to your door.</p>
+          <div className="flex items-center gap-3 mt-2 flex-wrap" data-testid="header-callouts">
+            <div className="flex items-center gap-1">
+              <TrendingDown className="w-3 h-3 text-[#FFB427]" />
+              <span className="text-[11px] text-white font-semibold">Best Rates</span>
+            </div>
+            <div className="flex items-center gap-1">
+              <Truck className="w-3 h-3 text-[#FFB427]" />
+              <span className="text-[11px] text-white font-semibold">Doorstep Delivery</span>
+            </div>
+            <div className="flex items-center gap-1">
+              <Shield className="w-3 h-3 text-[#FFB427]" />
+              <span className="text-[11px] text-white font-semibold">Pay on Delivery</span>
+            </div>
+          </div>
         </div>
 
         <div className="p-5">
@@ -190,22 +203,6 @@ export function ForexWidget() {
                 Forex Card
               </button>
             </div>
-
-            {persuasionText && (
-              <div className="flex items-center gap-1.5 px-1" data-testid="persuasion-text">
-                {product === "card" ? (
-                  <>
-                    <Zap className="w-3 h-3 text-[#FFB427] flex-shrink-0" />
-                    <span className="text-[11px] text-gray-600 font-medium">{persuasionText}</span>
-                  </>
-                ) : (
-                  <>
-                    <Shield className="w-3 h-3 text-green-500 flex-shrink-0" />
-                    <span className="text-[11px] text-gray-600 font-medium">{persuasionText}</span>
-                  </>
-                )}
-              </div>
-            )}
 
             <div>
               <label className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-1.5 block">Currency</label>
@@ -299,16 +296,26 @@ export function ForexWidget() {
                 </Button>
               </motion.div>
 
-              <div className="flex items-center justify-center gap-4 pt-1" data-testid="trust-badges">
+              <div className="flex flex-col items-center gap-1.5 pt-1" data-testid="trust-badges">
                 <div className="flex items-center gap-1">
                   <Zap className="w-3 h-3 text-[#FFB427]" />
                   <span className="text-[10px] font-semibold text-gray-500 uppercase tracking-wide">Zero Forex Markup</span>
                 </div>
-                <div className="w-px h-3 bg-gray-300" />
-                <div className="flex items-center gap-1">
-                  <Shield className="w-3 h-3 text-green-500" />
-                  <span className="text-[10px] font-semibold text-gray-500 uppercase tracking-wide">RBI Authorized</span>
-                </div>
+                {persuasionText && (
+                  <div className="flex items-center gap-1" data-testid="persuasion-text">
+                    {product === "card" ? (
+                      <>
+                        <Zap className="w-3 h-3 text-[#FFB427] flex-shrink-0" />
+                        <span className="text-[10px] font-semibold text-gray-500 uppercase tracking-wide">{persuasionText}</span>
+                      </>
+                    ) : (
+                      <>
+                        <Shield className="w-3 h-3 text-green-500 flex-shrink-0" />
+                        <span className="text-[10px] font-semibold text-gray-500 uppercase tracking-wide">{persuasionText}</span>
+                      </>
+                    )}
+                  </div>
+                )}
               </div>
             </div>
 
