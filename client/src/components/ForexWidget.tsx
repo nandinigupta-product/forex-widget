@@ -1,6 +1,6 @@
 import * as React from "react";
 import { motion } from "framer-motion";
-import { ArrowRight, RefreshCw, Zap, Shield, TrendingDown, Clock, Timer, Truck, ChevronDown } from "lucide-react";
+import { ArrowRight, RefreshCw, Zap, Shield, TrendingDown, Clock, Timer, Truck, ChevronDown, IndianRupee } from "lucide-react";
 import { useLocation, useSearch } from "wouter";
 import { useToast } from "@/hooks/use-toast";
 import { useRates, useCreateLead } from "@/hooks/use-forex";
@@ -149,34 +149,24 @@ export function ForexWidget() {
 
         <div className="bg-[#093562] px-5 pt-6 pb-3 rounded-t-md">
           <h2 className="text-lg font-semibold text-white" data-testid="text-widget-title">Buy Forex Online</h2>
-          <div className="flex items-center gap-3 mt-2 flex-wrap" data-testid="header-callouts">
-            <div className="flex items-center gap-1">
-              <TrendingDown className="w-3 h-3 text-[#FFB427]" />
-              <span className="text-[11px] text-white font-semibold">Best Rates</span>
+          <div className="flex items-center gap-4 mt-2 flex-wrap" data-testid="header-callouts">
+            <div className="flex items-center gap-1.5">
+              <TrendingDown className="w-3.5 h-3.5 text-[#FFB427]" />
+              <span className="text-[13px] text-white font-semibold">Best Rates</span>
             </div>
-            <div className="flex items-center gap-1">
-              <Truck className="w-3 h-3 text-[#FFB427]" />
-              <span className="text-[11px] text-white font-semibold">Doorstep Delivery</span>
+            <div className="flex items-center gap-1.5">
+              <Truck className="w-3.5 h-3.5 text-[#FFB427]" />
+              <span className="text-[13px] text-white font-semibold">Doorstep Delivery</span>
             </div>
-            <div className="flex items-center gap-1">
-              <Shield className="w-3 h-3 text-[#FFB427]" />
-              <span className="text-[11px] text-white font-semibold">Pay on Delivery</span>
+            <div className="flex items-center gap-1.5">
+              <IndianRupee className="w-3.5 h-3.5 text-[#FFB427]" />
+              <span className="text-[13px] text-white font-semibold">Pay on Delivery</span>
             </div>
           </div>
         </div>
 
         <div className="p-5">
           <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="flex items-center justify-between bg-blue-50 border border-blue-100 rounded-md px-3 py-2" data-testid="delivery-tat-bar">
-              <div className="flex items-center gap-2">
-                <Truck className="w-4 h-4 text-blue-600 flex-shrink-0" />
-                <span className="text-[12px] text-blue-800 font-semibold" data-testid="delivery-tat">
-                  {deliveryTat.text}
-                </span>
-              </div>
-              <CitySelector value={city} onChange={setCity} compact />
-            </div>
-
             <div className="flex rounded-md border border-gray-300 overflow-hidden" data-testid="tabs-product">
               <button
                 type="button"
@@ -202,6 +192,16 @@ export function ForexWidget() {
               >
                 Forex Card
               </button>
+            </div>
+
+            <div className="flex items-center justify-between bg-blue-50 border border-blue-100 rounded-md px-3 py-2" data-testid="delivery-tat-bar">
+              <div className="flex items-center gap-2">
+                <Truck className="w-4 h-4 text-blue-600 flex-shrink-0" />
+                <span className="text-[12px] text-blue-800 font-semibold" data-testid="delivery-tat">
+                  {deliveryTat.text}
+                </span>
+              </div>
+              <CitySelector value={city} onChange={setCity} compact />
             </div>
 
             <div>
@@ -296,25 +296,23 @@ export function ForexWidget() {
                 </Button>
               </motion.div>
 
-              <div className="flex flex-col items-center gap-1.5 pt-1" data-testid="trust-badges">
+              <div className="flex items-center justify-center gap-3 pt-1 flex-wrap" data-testid="trust-badges">
                 <div className="flex items-center gap-1">
                   <Zap className="w-3 h-3 text-[#FFB427]" />
                   <span className="text-[10px] font-semibold text-gray-500 uppercase tracking-wide">Zero Forex Markup</span>
                 </div>
                 {persuasionText && (
-                  <div className="flex items-center gap-1" data-testid="persuasion-text">
-                    {product === "card" ? (
-                      <>
+                  <>
+                    <div className="w-px h-3 bg-gray-300" />
+                    <div className="flex items-center gap-1" data-testid="persuasion-text">
+                      {product === "card" ? (
                         <Zap className="w-3 h-3 text-[#FFB427] flex-shrink-0" />
-                        <span className="text-[10px] font-semibold text-gray-500 uppercase tracking-wide">{persuasionText}</span>
-                      </>
-                    ) : (
-                      <>
+                      ) : (
                         <Shield className="w-3 h-3 text-green-500 flex-shrink-0" />
-                        <span className="text-[10px] font-semibold text-gray-500 uppercase tracking-wide">{persuasionText}</span>
-                      </>
-                    )}
-                  </div>
+                      )}
+                      <span className="text-[10px] font-semibold text-gray-500 uppercase tracking-wide">{persuasionText}</span>
+                    </div>
+                  </>
                 )}
               </div>
             </div>
