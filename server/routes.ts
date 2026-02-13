@@ -21,18 +21,21 @@ export async function registerRoutes(
       const data = JSON.parse(fileContent);
       
       const rawCities = data.cities || {};
+      const topCityOrder = ["MUM", "DEL", "BNG", "HYD", "PUN", "CHN", "GUR", "NOI", "KOL"];
       const citiesList = Object.entries(rawCities).map(([code, details]: [string, any]) => ({
         code: code,
         name: details.description || code,
         aliases: details.aliases_name || [],
         icon: details.icon,
-        isTopCity: ["DEL", "MUM", "BNG", "CHN", "KOL", "HYD", "PUN", "GUR", "NOI"].includes(code)
+        isTopCity: topCityOrder.includes(code)
       }));
 
-      // Sort: Top cities first, then alphabetical
       citiesList.sort((a, b) => {
-        if (a.isTopCity && !b.isTopCity) return -1;
-        if (!a.isTopCity && b.isTopCity) return 1;
+        const aTop = topCityOrder.indexOf(a.code);
+        const bTop = topCityOrder.indexOf(b.code);
+        if (aTop !== -1 && bTop !== -1) return aTop - bTop;
+        if (aTop !== -1) return -1;
+        if (bTop !== -1) return 1;
         return a.name.localeCompare(b.name);
       });
 
@@ -75,11 +78,16 @@ export async function registerRoutes(
       // result is directly an array of rate objects
       const bmfRates: any[] = Array.isArray(data.result) ? data.result : [];
 
+      const currencyPopularityOrder = [
+        "USD", "EUR", "GBP", "AUD", "CAD", "SGD", "NZD", "HKD",
+        "AED", "SAR", "CHF", "JPY", "SEK", "THB", "MYR", "CNY",
+        "ZAR", "OMR", "BHD", "KWD", "NOK", "DKK", "IDR", "LKR",
+        "KRW", "RUB", "PHP", "VND", "MUR", "BDT", "CZK", "MOP",
+        "PLN", "ILS", "EGP", "KES", "BRL", "QAR", "MVR"
+      ];
+
       const formattedRates = bmfRates.map((item: any) => {
         const currency = item.currency_code;
-        // bpc = Buy Prepaid Card rate (forex card)
-        // bcn = Buy Cash Notes rate
-        // b = best buy rate (usually same as bpc)
         const cardRate = parseFloat(item.bpc || item.b || "0");
         const notesRate = parseFloat(item.bcn || item.b || "0");
         const name = item.currency_description || "";
@@ -87,6 +95,15 @@ export async function registerRoutes(
         
         return { currency, cardRate, notesRate, symbol: "", name, image };
       }).filter((r: any) => (r.cardRate > 0 || r.notesRate > 0) && r.currency);
+
+      formattedRates.sort((a: any, b: any) => {
+        const aIdx = currencyPopularityOrder.indexOf(a.currency);
+        const bIdx = currencyPopularityOrder.indexOf(b.currency);
+        const aPos = aIdx !== -1 ? aIdx : 999;
+        const bPos = bIdx !== -1 ? bIdx : 999;
+        if (aPos !== bPos) return aPos - bPos;
+        return a.name.localeCompare(b.name);
+      });
       
       res.json({
         lastUpdated: new Date().toISOString(),
