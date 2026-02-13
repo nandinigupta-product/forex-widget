@@ -48,6 +48,122 @@ function useCountdown() {
   return { minutes, seconds };
 }
 
+const CURRENCY_SLUG_MAP: Record<string, string> = {
+  "us-dollar": "USD", "usd": "USD", "dollar": "USD",
+  "euro": "EUR", "eur": "EUR",
+  "british-pound": "GBP", "gbp": "GBP", "pound": "GBP",
+  "australian-dollar": "AUD", "aud": "AUD",
+  "canadian-dollar": "CAD", "cad": "CAD",
+  "singapore-dollar": "SGD", "sgd": "SGD",
+  "new-zealand-dollar": "NZD", "nzd": "NZD",
+  "hong-kong-dollar": "HKD", "hkd": "HKD",
+  "uae-dirham": "AED", "aed": "AED", "dirham": "AED",
+  "saudi-riyal": "SAR", "sar": "SAR", "riyal": "SAR",
+  "swiss-franc": "CHF", "chf": "CHF",
+  "japanese-yen": "JPY", "jpy": "JPY", "yen": "JPY",
+  "swedish-krona": "SEK", "sek": "SEK",
+  "thai-baht": "THB", "thb": "THB", "baht": "THB",
+  "malaysian-ringgit": "MYR", "myr": "MYR", "ringgit": "MYR",
+  "chinese-yuan": "CNY", "cny": "CNY", "yuan": "CNY",
+  "south-african-rand": "ZAR", "zar": "ZAR", "rand": "ZAR",
+  "omani-rial": "OMR", "omr": "OMR",
+  "bahraini-dinar": "BHD", "bhd": "BHD",
+  "kuwaiti-dinar": "KWD", "kwd": "KWD",
+  "norwegian-krone": "NOK", "nok": "NOK",
+  "danish-krone": "DKK", "dkk": "DKK",
+  "indonesian-rupiah": "IDR", "idr": "IDR",
+  "sri-lankan-rupee": "LKR", "lkr": "LKR",
+  "korean-won": "KRW", "krw": "KRW",
+  "turkish-lira": "TRY", "try": "TRY",
+  "russian-ruble": "RUB", "rub": "RUB",
+  "qatari-riyal": "QAR", "qar": "QAR",
+  "philippine-peso": "PHP", "php": "PHP",
+};
+
+const CITY_SLUG_MAP: Record<string, string> = {
+  "mumbai": "MUM", "delhi": "DEL", "new-delhi": "DEL", "bangalore": "BNG", "bengaluru": "BNG",
+  "hyderabad": "HYD", "pune": "PUN", "chennai": "CHN", "gurgaon": "GUR", "gurugram": "GUR",
+  "noida": "NOI", "kolkata": "KOL", "ahmedabad": "AHM", "jaipur": "JAI", "chandigarh": "CHA",
+  "lucknow": "LKO", "indore": "IND", "kochi": "KOC", "cochin": "KOC", "goa": "GOA",
+  "bhopal": "BHP", "nagpur": "NAG", "surat": "SUR", "vadodara": "VAD", "coimbatore": "COI",
+  "visakhapatnam": "VSK", "vizag": "VSK", "trivandrum": "THI", "thiruvananthapuram": "THI",
+  "mysore": "MYS", "mysuru": "MYS", "mangalore": "MNG", "mangaluru": "MNG",
+  "bhubaneswar": "BHB", "patna": "PAT", "ranchi": "RAN", "guwahati": "GWH",
+  "dehradun": "DEH", "amritsar": "AMR", "ludhiana": "LDH", "jalandhar": "JAL",
+  "kanpur": "KNP", "varanasi": "VAR", "agra": "AGR", "meerut": "MRT",
+  "faridabad": "FAR", "ghaziabad": "GHZ", "greater-noida": "GNO", "thane": "THA",
+  "navi-mumbai": "NVM", "nashik": "NSK", "rajkot": "RJK", "madurai": "MAD",
+  "jodhpur": "JOD", "raipur": "RAI", "gwalior": "GWL", "hubli": "HUBL",
+  "belgaum": "BELG", "udaipur": "UDP", "jammu": "JAM", "shimla": "SHM",
+  "pondicherry": "PDY", "puducherry": "PDY", "mohali": "MOH", "panchkula": "PCK",
+  "siliguri": "SIL", "cuttack": "CUTT", "kolhapur": "KLH", "solapur": "SLP",
+  "salem": "SAL", "thrissur": "TRI", "kozhikode": "KZH", "calicut": "KZH",
+  "tiruchirappalli": "TIRU", "trichy": "TIRU", "tirupur": "TPR",
+  "secunderabad": "SEC", "warangal": "WRG", "vijayawada": "VIJ", "guntur": "GUN",
+};
+
+function detectContextFromUrl(): { product?: "card" | "note" | "both"; city?: string; currency?: string } {
+  const params = new URLSearchParams(window.location.search);
+  const result: { product?: "card" | "note" | "both"; city?: string; currency?: string } = {};
+
+  const productParam = params.get("product")?.toLowerCase();
+  if (productParam === "card") result.product = "card";
+  else if (productParam === "note") result.product = "note";
+  else if (productParam === "both") result.product = "both";
+
+  const cityParam = params.get("city")?.toUpperCase();
+  if (cityParam) result.city = cityParam;
+
+  const currencyParam = params.get("currency")?.toUpperCase();
+  if (currencyParam) result.currency = currencyParam;
+
+  const referrer = document.referrer || "";
+  const widgetPath = window.location.pathname || "";
+  const urlToCheck = referrer || widgetPath;
+
+  if (urlToCheck) {
+    const urlLower = urlToCheck.toLowerCase();
+
+    if (!result.product) {
+      if (urlLower.includes("/forex-card")) {
+        result.product = "card";
+      }
+    }
+
+    if (!result.city) {
+      const ceMatch = urlLower.match(/\/currency-exchange\/([a-z-]+)\/?/);
+      if (ceMatch && ceMatch[1]) {
+        const slug = ceMatch[1];
+        if (CITY_SLUG_MAP[slug]) {
+          result.city = CITY_SLUG_MAP[slug];
+        }
+      }
+    }
+
+    if (!result.currency) {
+      const converterMatch = urlLower.match(/\/currency-converter\/([a-z-]+)-to-inr/);
+      if (converterMatch && converterMatch[1]) {
+        const slug = converterMatch[1];
+        if (CURRENCY_SLUG_MAP[slug]) {
+          result.currency = CURRENCY_SLUG_MAP[slug];
+        }
+      }
+
+      if (!result.currency) {
+        const ratesMatch = urlLower.match(/\/([a-z-]+)\/rates\/?/);
+        if (ratesMatch && ratesMatch[1]) {
+          const slug = ratesMatch[1];
+          if (CURRENCY_SLUG_MAP[slug]) {
+            result.currency = CURRENCY_SLUG_MAP[slug];
+          }
+        }
+      }
+    }
+  }
+
+  return result;
+}
+
 function getDeliveryTat() {
   const now = new Date();
   const hour = now.getHours();
@@ -64,12 +180,19 @@ export function ForexWidget() {
   const [location] = useLocation();
   const search = useSearch();
 
-  const searchParams = new URLSearchParams(search);
-  const defaultCity = searchParams.get("city")?.toUpperCase().slice(0, 3) || "DEL";
+  const context = React.useMemo(() => detectContextFromUrl(), []);
 
-  const [product, setProduct] = React.useState<"note" | "card">("note");
+  const showOnlyCard = context.product === "card";
+  const showOnlyNote = context.product === "note";
+  const showBothTabs = !showOnlyCard && !showOnlyNote;
+
+  const defaultProduct = showOnlyCard ? "card" : "note";
+  const defaultCity = context.city || "DEL";
+  const defaultCurrency = context.currency || "USD";
+
+  const [product, setProduct] = React.useState<"note" | "card">(defaultProduct);
   const [city, setCity] = React.useState(defaultCity);
-  const [currency, setCurrency] = React.useState("USD");
+  const [currency, setCurrency] = React.useState(defaultCurrency);
   const [amount, setAmount] = React.useState<number | "">(1000);
   const [pulseButton, setPulseButton] = React.useState(true);
 
@@ -167,34 +290,44 @@ export function ForexWidget() {
 
         <div className="p-4 sm:p-5">
           <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-4">
-            <div className="flex rounded-md border border-gray-300 overflow-hidden" data-testid="tabs-product">
-              <button
-                type="button"
-                onClick={() => setProduct("note")}
-                className={`flex-1 py-2.5 text-sm font-medium transition-colors flex items-center justify-center ${
-                  product === "note"
-                    ? "bg-[#093562] text-white"
-                    : "bg-gray-50 text-gray-600 hover:bg-gray-100"
-                }`}
-                data-testid="tab-notes"
-              >
-                <Banknote className="w-4 h-4 mr-1.5 flex-shrink-0" />
-                Currency Notes
-              </button>
-              <button
-                type="button"
-                onClick={() => setProduct("card")}
-                className={`flex-1 py-2.5 text-sm font-medium transition-colors border-l border-gray-300 flex items-center justify-center ${
-                  product === "card"
-                    ? "bg-[#093562] text-white"
-                    : "bg-gray-50 text-gray-600 hover:bg-gray-100"
-                }`}
-                data-testid="tab-card"
-              >
-                <CreditCard className="w-4 h-4 mr-1.5 flex-shrink-0" />
-                Forex Card
-              </button>
-            </div>
+            {showBothTabs ? (
+              <div className="flex rounded-md border border-gray-300 overflow-hidden" data-testid="tabs-product">
+                <button
+                  type="button"
+                  onClick={() => setProduct("note")}
+                  className={`flex-1 py-2.5 text-sm font-medium transition-colors flex items-center justify-center ${
+                    product === "note"
+                      ? "bg-[#093562] text-white"
+                      : "bg-gray-50 text-gray-600 hover:bg-gray-100"
+                  }`}
+                  data-testid="tab-notes"
+                >
+                  <Banknote className="w-4 h-4 mr-1.5 flex-shrink-0" />
+                  Currency Notes
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setProduct("card")}
+                  className={`flex-1 py-2.5 text-sm font-medium transition-colors border-l border-gray-300 flex items-center justify-center ${
+                    product === "card"
+                      ? "bg-[#093562] text-white"
+                      : "bg-gray-50 text-gray-600 hover:bg-gray-100"
+                  }`}
+                  data-testid="tab-card"
+                >
+                  <CreditCard className="w-4 h-4 mr-1.5 flex-shrink-0" />
+                  Forex Card
+                </button>
+              </div>
+            ) : (
+              <div className="flex items-center justify-center gap-2 bg-[#093562] text-white rounded-md py-2.5 text-sm font-medium" data-testid="tabs-product">
+                {showOnlyCard ? (
+                  <><CreditCard className="w-4 h-4 flex-shrink-0" /> Forex Card</>
+                ) : (
+                  <><Banknote className="w-4 h-4 flex-shrink-0" /> Currency Notes</>
+                )}
+              </div>
+            )}
 
             <div className="flex items-center justify-between bg-blue-50 border border-blue-100 rounded-md px-3 py-2" data-testid="delivery-tat-bar">
               <div className="flex items-center gap-2">
