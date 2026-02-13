@@ -254,9 +254,10 @@ export function ForexWidget() {
 
   const selectedRate = ratesData?.rates.find((r) => r.currency === currency);
   const originalRate = selectedRate ? (product === "card" ? selectedRate.cardRate : selectedRate.notesRate) : 0;
-  const hasDiscount = betterRateData && betterRateData.flatDiscount > 0 && betterRateData.improvedRate > 0 && betterRateData.discountCode;
-  const activeRate = hasDiscount ? betterRateData.improvedRate : originalRate;
+  const hasDiscount = betterRateData && betterRateData.flatDiscount > 0 && betterRateData.discountCode;
+  const activeRate = originalRate;
   const convertedAmount = amount && activeRate ? (Number(amount) * activeRate).toFixed(2) : null;
+  const discountedTotal = hasDiscount && convertedAmount ? (Number(convertedAmount) - betterRateData.flatDiscount).toFixed(2) : null;
 
   const savings = amount && activeRate ? (Number(amount) * activeRate * 0.035).toFixed(0) : null;
 
@@ -430,24 +431,26 @@ export function ForexWidget() {
                 />
                 {selectedRate && activeRate > 0 && (
                   <div className="absolute right-3 top-1/2 -translate-y-1/2 text-right" data-testid="rate-display">
-                    {hasDiscount ? (
-                      <>
-                        <span className="text-[10px] text-gray-400 line-through block leading-tight" data-testid="text-original-rate">
-                          ₹{originalRate.toFixed(2)}
-                        </span>
-                        <span className="text-[11px] text-green-600 font-semibold block leading-tight" data-testid="text-rate">
-                          1 {currency} = ₹{activeRate.toFixed(2)}
-                        </span>
-                      </>
-                    ) : (
-                      <span className="text-[11px] text-gray-400 block leading-tight" data-testid="text-rate">
-                        1 {currency} = ₹{activeRate.toFixed(2)}
-                      </span>
-                    )}
+                    <span className="text-[11px] text-gray-400 block leading-tight" data-testid="text-rate">
+                      1 {currency} = ₹{activeRate.toFixed(2)}
+                    </span>
                     {convertedAmount && (
-                      <span className="text-xs font-bold text-[#093562] block leading-tight" data-testid="text-converted-amount">
-                        = ₹{Number(convertedAmount).toLocaleString('en-IN', { minimumFractionDigits: 2 })}
-                      </span>
+                      <div className="leading-tight">
+                        {hasDiscount && discountedTotal ? (
+                          <>
+                            <span className="text-[10px] text-gray-400 line-through" data-testid="text-original-total">
+                              ₹{Number(convertedAmount).toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                            </span>
+                            <span className="text-xs font-bold text-green-600 block" data-testid="text-converted-amount">
+                              = ₹{Number(discountedTotal).toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                            </span>
+                          </>
+                        ) : (
+                          <span className="text-xs font-bold text-[#093562] block" data-testid="text-converted-amount">
+                            = ₹{Number(convertedAmount).toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                          </span>
+                        )}
+                      </div>
                     )}
                   </div>
                 )}
@@ -465,10 +468,10 @@ export function ForexWidget() {
                   <Tag className="w-4 h-4 text-emerald-600 flex-shrink-0" />
                   <div className="min-w-0">
                     <span className="text-[11px] text-emerald-800 font-bold block leading-tight">
-                      You save ₹{(betterRateData.flatDiscount * Number(amount)).toFixed(0)}
+                      ₹{betterRateData.flatDiscount.toLocaleString('en-IN')} cashback applied
                     </span>
                     <span className="text-[10px] text-emerald-600 block leading-tight mt-0.5">
-                      Flat ₹{betterRateData.flatDiscount.toFixed(2)}/{currency} off
+                      Discount applied on checkout
                     </span>
                   </div>
                 </div>

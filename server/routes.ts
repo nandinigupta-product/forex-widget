@@ -348,38 +348,19 @@ export async function registerRoutes(
   app.post(api.betterRate.get.path, async (req, res) => {
     try {
       const input = api.betterRate.get.input.parse(req.body);
-      
-      const bmfResponse = await fetch('https://www.bookmyforex.com/api/secure/better-rate/v1/save-better-rate', {
-        method: 'POST',
-        headers: {
-          'accept': 'application/json, text/javascript, */*; q=0.01',
-          'content-type': 'application/json',
-          'origin': 'https://www.bookmyforex.com',
-          'referer': 'https://www.bookmyforex.com/',
-          'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36',
-          'x-requested-with': 'XMLHttpRequest'
-        },
-        body: JSON.stringify({
-          amount: input.amount,
-          currencyCode: input.currencyCode,
-          product: input.product,
-          cityCode: input.cityCode,
-          orderType: 'B'
-        })
-      });
 
-      const discountCode = bmfResponse.headers.get('response_token') || null;
+      const bmfHeaders = {
+        'accept': 'application/json, text/javascript, */*; q=0.01',
+        'content-type': 'application/json',
+        'origin': 'https://www.bookmyforex.com',
+        'referer': 'https://www.bookmyforex.com/',
+        'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36',
+        'x-requested-with': 'XMLHttpRequest'
+      };
 
       const rateCardResponse = await fetch(`https://www.bookmyforex.com/api/secure/v1/get-full-rate-card?city_code=${input.cityCode}`, {
-        headers: {
-          'accept': 'application/json, text/javascript, */*; q=0.01',
-          'content-type': 'application/json',
-          'referer': 'https://www.bookmyforex.com/',
-          'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36',
-          'x-requested-with': 'XMLHttpRequest'
-        }
+        headers: bmfHeaders
       });
-
       const rateData: any = await rateCardResponse.json();
       const bmfRates: any[] = Array.isArray(rateData.result) ? rateData.result : [];
       const currencyRate = bmfRates.find((r: any) => r.currency_code === input.currencyCode);
@@ -388,39 +369,78 @@ export async function registerRoutes(
         return res.status(404).json({ message: "Currency rate not found" });
       }
 
-      let originalRate: number;
-      let improvedRate: number;
-      let flatDiscount: number;
+      const originalRate = input.product === "CN"
+        ? parseFloat(currencyRate.bcn || "0")
+        : parseFloat(currencyRate.bpc || "0");
 
-      if (input.product === "CN") {
-        originalRate = parseFloat(currencyRate.bcn || "0");
-        const comboRate = currencyRate.bcn_combo ? parseFloat(currencyRate.bcn_combo) : 0;
-        if (comboRate > 0 && comboRate < originalRate) {
-          improvedRate = comboRate;
-          flatDiscount = originalRate - improvedRate;
-        } else {
-          improvedRate = originalRate;
-          flatDiscount = 0;
+      if (originalRate <= 0) {
+        return res.status(404).json({ message: "Rate not available" });
+      }
+
+      const bmfResponse = await fetch('https://www.bookmyforex.com/api/secure/better-rate/v1/save-better-rate', {
+        method: 'POST',
+        headers: bmfHeaders,
+        body: JSON.stringify({
+          email: "guest@bookmyforex.com",
+          phone: "9999999999",
+          name: "Guest User",
+          rate: String(originalRate),
+          device_type_code: "web",
+          order_type_code: "B",
+          city_code: input.cityCode,
+          lead_source_code: "betterRate",
+          cop_list: [{
+            currency_code: input.currencyCode,
+            product_code: input.product,
+            foreign_amount: String(input.amount),
+            order_type: "B"
+          }]
+        })
+      });
+
+      const discountCode = bmfResponse.headers.get('response_token') || null;
+
+      let flatDiscount = 0;
+      let totalAmount = 0;
+      let grandTotal = 0;
+
+      try {
+        const bmfData: any = await bmfResponse.json();
+        if (bmfData?.result) {
+          const resultStr = JSON.stringify(bmfData.result);
+          const copMatch = resultStr.match(/"flat_discount"\s*:\s*([\d.]+)/);
+          if (copMatch) {
+            flatDiscount = parseFloat(copMatch[1]);
+          }
+          const totalMatch = resultStr.match(/"total_amount"\s*:\s*([\d.]+)/);
+          if (totalMatch) {
+            totalAmount = parseFloat(totalMatch[1]);
+          }
+          const grandMatch = resultStr.match(/"grand_total"\s*:\s*([\d.]+)/);
+          if (grandMatch) {
+            grandTotal = parseFloat(grandMatch[1]);
+          }
         }
-      } else {
-        originalRate = parseFloat(currencyRate.bpc || "0");
-        const bcn = parseFloat(currencyRate.bcn || "0");
-        const bcnCombo = currencyRate.bcn_combo ? parseFloat(currencyRate.bcn_combo) : 0;
-        if (bcn > 0 && bcnCombo > 0 && bcnCombo < bcn && originalRate > 0) {
-          const discountRatio = (bcn - bcnCombo) / bcn;
-          flatDiscount = parseFloat((originalRate * discountRatio).toFixed(4));
-          improvedRate = parseFloat((originalRate - flatDiscount).toFixed(4));
-        } else {
-          improvedRate = originalRate;
-          flatDiscount = 0;
+      } catch {
+        // Response body might be empty for some requests - fall back to rate card combo
+        if (input.product === "CN") {
+          const comboRate = currencyRate.bcn_combo ? parseFloat(currencyRate.bcn_combo) : 0;
+          if (comboRate > 0 && comboRate < originalRate) {
+            flatDiscount = parseFloat(((originalRate - comboRate) * input.amount).toFixed(2));
+          }
         }
+      }
+
+      if (flatDiscount <= 0) {
+        flatDiscount = 0;
       }
 
       res.json({
         discountCode: flatDiscount > 0 ? discountCode : null,
-        flatDiscount: parseFloat(flatDiscount.toFixed(4)),
-        improvedRate,
-        originalRate
+        flatDiscount,
+        originalRate,
+        totalAmount: totalAmount > 0 ? totalAmount : originalRate * input.amount,
+        grandTotal: grandTotal > 0 ? grandTotal : undefined,
       });
     } catch (err) {
       if (err instanceof z.ZodError) {

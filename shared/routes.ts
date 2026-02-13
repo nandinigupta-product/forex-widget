@@ -70,8 +70,9 @@ export const api = {
         200: z.object({
           discountCode: z.string().nullable(),
           flatDiscount: z.number(),
-          improvedRate: z.number(),
           originalRate: z.number(),
+          totalAmount: z.number(),
+          grandTotal: z.number().optional(),
         }),
       },
     },
