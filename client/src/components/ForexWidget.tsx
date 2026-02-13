@@ -1,6 +1,6 @@
 import * as React from "react";
 import { motion } from "framer-motion";
-import { ArrowRight, RefreshCw, Zap, Shield, TrendingDown, Clock, Timer, Truck, ChevronDown, IndianRupee, CreditCard, Banknote, Tag, BadgePercent } from "lucide-react";
+import { ArrowRight, RefreshCw, Zap, Shield, TrendingDown, Clock, Timer, Truck, ChevronDown, IndianRupee, CreditCard, Banknote, Tag, BadgePercent, Copy, Check } from "lucide-react";
 import { useLocation, useSearch } from "wouter";
 import { useToast } from "@/hooks/use-toast";
 import { useRates, useCreateLead, useBetterRate } from "@/hooks/use-forex";
@@ -174,6 +174,47 @@ function getDeliveryTat() {
   tomorrow.setDate(tomorrow.getDate() + 1);
   const formatted = tomorrow.toLocaleDateString('en-IN', { day: 'numeric', month: 'short' });
   return { text: `Delivery by ${formatted} (tomorrow)`, isSameDay: false };
+}
+
+function DiscountCopyButton({ code }: { code: string }) {
+  const [copied, setCopied] = React.useState(false);
+  const handleCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(code);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      const el = document.createElement("textarea");
+      el.value = code;
+      document.body.appendChild(el);
+      el.select();
+      document.execCommand("copy");
+      document.body.removeChild(el);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    }
+  };
+  return (
+    <button
+      type="button"
+      onClick={handleCopy}
+      className="flex items-center gap-1 text-[10px] font-medium text-emerald-700 bg-emerald-100 hover:bg-emerald-200 rounded px-2 py-1 transition-colors flex-shrink-0"
+      data-testid="button-copy-discount"
+      title="Copy discount code"
+    >
+      {copied ? (
+        <>
+          <Check className="w-3 h-3" />
+          Copied
+        </>
+      ) : (
+        <>
+          <Copy className="w-3 h-3" />
+          Copy Code
+        </>
+      )}
+    </button>
+  );
 }
 
 export function ForexWidget() {
@@ -417,18 +458,21 @@ export function ForexWidget() {
               <motion.div
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
-                className="flex items-center gap-2 bg-emerald-50 border border-emerald-200 border-dashed rounded-md px-3 py-2"
+                className="flex items-center justify-between bg-emerald-50 border border-emerald-200 border-dashed rounded-md px-3 py-2"
                 data-testid="discount-banner"
               >
-                <Tag className="w-4 h-4 text-emerald-600 flex-shrink-0" />
-                <div className="flex-1 min-w-0">
-                  <span className="text-[11px] text-emerald-700 font-medium block leading-tight">
-                    Discount Applied: <span className="font-bold font-mono bg-emerald-100 px-1.5 py-0.5 rounded text-emerald-800">{betterRateData.discountCode}</span>
-                  </span>
-                  <span className="text-[10px] text-emerald-600 block leading-tight mt-0.5">
-                    Flat ₹{betterRateData.flatDiscount.toFixed(2)}/{currency} off applied
-                  </span>
+                <div className="flex items-center gap-2 min-w-0">
+                  <Tag className="w-4 h-4 text-emerald-600 flex-shrink-0" />
+                  <div className="min-w-0">
+                    <span className="text-[11px] text-emerald-800 font-bold block leading-tight">
+                      You save ₹{(betterRateData.flatDiscount * Number(amount)).toFixed(0)}
+                    </span>
+                    <span className="text-[10px] text-emerald-600 block leading-tight mt-0.5">
+                      Flat ₹{betterRateData.flatDiscount.toFixed(2)}/{currency} off
+                    </span>
+                  </div>
                 </div>
+                <DiscountCopyButton code={betterRateData.discountCode} />
               </motion.div>
             )}
 
