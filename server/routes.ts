@@ -7,6 +7,49 @@ import { z } from "zod";
 import fs from 'fs';
 import path from 'path';
 
+const bmfCityCodeMap: Record<string, string> = {
+  "AHM": "AMD",
+  "AGR": "AGRA",
+  "ANA": "AMD",
+  "AUR": "PUN",
+  "BAR": "DEL",
+  "BHB": "CUTT",
+  "BHP": "IND",
+  "CHA": "CHD",
+  "COI": "CHN",
+  "DEH": "DEL",
+  "FAR": "FBD",
+  "GNO": "NOI",
+  "GWL": "DEL",
+  "HSR": "BNG",
+  "JAB": "IND",
+  "JAL": "CHD",
+  "JOD": "JODH",
+  "KNP": "KANP",
+  "KPR": "CHD",
+  "KRN": "DEL",
+  "KZH": "KOC",
+  "LDH": "CHD",
+  "LKO": "LCK",
+  "MOH": "CHD",
+  "MYS": "BNG",
+  "NSK": "NASH",
+  "NWN": "CHD",
+  "PCK": "CHD",
+  "PNV": "PANV",
+  "PTL": "CHD",
+  "RJK": "AMD",
+  "SAL": "CHN",
+  "THA": "THAN",
+  "VIJ": "HYD",
+  "WRG": "HYD",
+};
+
+function toBmfCityCode(code: string): string {
+  const upper = code.toUpperCase();
+  return bmfCityCodeMap[upper] || upper;
+}
+
 export async function registerRoutes(
   httpServer: Server,
   app: Express
@@ -287,7 +330,8 @@ export async function registerRoutes(
   // --- API: Get Rates from BookMyForex ---
   app.get(api.rates.list.path, async (req, res) => {
     try {
-      const cityCode = ((req.query.city_code as string) || "DEL").toUpperCase();
+      const rawCityCode = ((req.query.city_code as string) || "DEL").toUpperCase();
+      const cityCode = toBmfCityCode(rawCityCode);
       
       const response = await fetch(`https://www.bookmyforex.com/api/secure/v1/get-full-rate-card?city_code=${cityCode}`, {
         headers: {
@@ -363,7 +407,9 @@ export async function registerRoutes(
         'x-requested-with': 'XMLHttpRequest'
       };
 
-      const rateCardResponse = await fetch(`https://www.bookmyforex.com/api/secure/v1/get-full-rate-card?city_code=${input.cityCode}`, {
+      const bmfCity = toBmfCityCode(input.cityCode);
+
+      const rateCardResponse = await fetch(`https://www.bookmyforex.com/api/secure/v1/get-full-rate-card?city_code=${bmfCity}`, {
         headers: bmfHeaders
       });
       const rateData: any = await rateCardResponse.json();
@@ -392,7 +438,7 @@ export async function registerRoutes(
           rate: String(originalRate),
           device_type_code: "web",
           order_type_code: "B",
-          city_code: input.cityCode,
+          city_code: bmfCity,
           lead_source_code: "betterRate",
           cop_list: [{
             currency_code: input.currencyCode,
