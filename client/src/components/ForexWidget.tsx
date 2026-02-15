@@ -518,31 +518,46 @@ export function ForexWidget() {
             )}
 
             <div className="space-y-2">
-              <motion.div
-                animate={pulseButton ? { scale: [1, 1.02, 1] } : {}}
-                transition={{ duration: 0.6, ease: "easeInOut" }}
-              >
-                <Button
-                  type="submit"
-                  disabled={isPending || !amount || !activeRate}
-                  className="w-full h-12 rounded-md text-[15px] font-bold bg-[#FFB427] hover:bg-[#e6a223] text-white uppercase tracking-wider border-0 shadow-none ring-0 outline-none focus:ring-0 focus-visible:ring-0"
-                  data-testid="button-submit"
+              <div className="flex flex-col min-[360px]:flex-row gap-2.5">
+                <motion.div
+                  animate={pulseButton ? { scale: [1, 1.02, 1] } : {}}
+                  transition={{ duration: 0.6, ease: "easeInOut" }}
+                  className="flex-[3] min-w-0"
                 >
-                  {isPending ? (
-                    <>
-                      <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
-                      Processing...
-                    </>
-                  ) : (
-                    <>
-                      Book This Order
-                      <ArrowRight className="w-4 h-4 ml-2" />
-                    </>
-                  )}
-                </Button>
-              </motion.div>
+                  <Button
+                    type="submit"
+                    disabled={isPending || !amount || !activeRate}
+                    className="w-full h-11 rounded-md text-[14px] font-bold bg-[#FFB427] hover:bg-[#e6a223] text-white uppercase tracking-wider border-0 shadow-none ring-0 outline-none focus:ring-0 focus-visible:ring-0"
+                    data-testid="button-submit"
+                  >
+                    {isPending ? (
+                      <>
+                        <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
+                        Processing...
+                      </>
+                    ) : (
+                      <>
+                        Book This Order
+                        <ArrowRight className="w-4 h-4 ml-2" />
+                      </>
+                    )}
+                  </Button>
+                </motion.div>
 
-              <div className="flex items-center justify-center gap-2 sm:gap-3 pt-1" data-testid="trust-badges">
+                <a
+                  href={`https://wa.me/919212219191?text=${encodeURIComponent(`Hi, I want to buy ${amount ? Number(amount).toLocaleString('en-IN') : ''} ${currency} ${product === 'card' ? 'Forex Card' : 'Currency Notes'} in ${city || 'my city'}. Please share the best rate.`)}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Chat on WhatsApp"
+                  className="flex-1 flex items-center justify-center gap-1.5 h-11 rounded-md text-[12px] font-semibold text-[#25D366] border border-[#25D366]/40 hover:bg-[#25D366]/5 transition-colors"
+                  data-testid="button-whatsapp"
+                >
+                  <MessageCircle className="w-4 h-4 flex-shrink-0" />
+                  <span className="whitespace-nowrap">WhatsApp</span>
+                </a>
+              </div>
+
+              <div className="flex items-center justify-center gap-2 sm:gap-3 pt-0.5" data-testid="trust-badges">
                 <div className="flex items-center gap-1 flex-shrink-0">
                   <Zap className="w-3 h-3 text-[#FFB427] flex-shrink-0" />
                   <span className="text-[9px] sm:text-[10px] font-semibold text-gray-500 uppercase tracking-wide whitespace-nowrap">Zero Forex Markup</span>
@@ -561,17 +576,6 @@ export function ForexWidget() {
                   </>
                 )}
               </div>
-
-              <a
-                href={`https://wa.me/919212219191?text=${encodeURIComponent(`Hi, I want to buy ${amount ? Number(amount).toLocaleString('en-IN') : ''} ${currency} ${product === 'card' ? 'Forex Card' : 'Currency Notes'} in ${city || 'my city'}. Please share the best rate.`)}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center justify-center gap-2 w-full h-10 rounded-md text-[13px] font-semibold bg-[#25D366] hover:bg-[#1da851] text-white transition-colors border-0"
-                data-testid="button-whatsapp"
-              >
-                <MessageCircle className="w-4 h-4" />
-                Connect on WhatsApp
-              </a>
             </div>
 
             <div className="bg-orange-50 border border-orange-200 rounded-md px-3 py-2 text-center" data-testid="urgency-banner">

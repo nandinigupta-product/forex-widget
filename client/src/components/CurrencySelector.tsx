@@ -33,18 +33,11 @@ interface CurrencySelectorProps {
 
 const CURRENCY_METADATA: Currency[] = [
   {
-    code: "EUR",
-    name: "Euro",
+    code: "USD",
+    name: "US Dollar",
     popular: true,
-    rightLabel: "France, Germany + 45 countries",
-    searchTerms: "eur euro france germany italy spain europe london paris rome berlin amsterdam barcelona albania andorra armenia austria azerbaijan belarus belgium bosnia herzegovina bulgaria croatia cyprus czech republic denmark estonia finland georgia greece hungary iceland ireland kosovo latvia liechtenstein lithuania luxembourg malta moldova monaco montenegro netherlands north macedonia norway poland portugal romania san marino serbia slovakia slovenia sweden switzerland ukraine vatican city moscow saint petersburg madrid kyiv bucharest minsk budapest hamburg warsaw vienna munich milan prague sofia brussels birmingham manchester naples stockholm copenhagen zagreb lisbon dublin marseille kazan katowice athens frankfurt helsinki lyon valencia oporto glasgow seville krakow bremen gothenburg toulouse vilnius turin palermo rotterdam european union",
-  },
-  {
-    code: "SGD",
-    name: "Singapore Dollar",
-    popular: true,
-    rightLabel: "Singapore",
-    searchTerms: "sgd singapore dollar sing jurong east woodlands tampines changi bukit timah marina bay sentosa orchard road sing dollar",
+    rightLabel: "USA, Maldives + 170 countries",
+    searchTerms: "usd us dollar usa america united states maldives new york los angeles chicago houston phoenix philadelphia san antonio san diego dallas san jose austin jacksonville fort worth columbus san francisco charlotte indianapolis seattle denver washington nashville new zealand switzerland guatemala micronesia colombia mexico austria ghana hungary denmark sweden iceland afghanistan dominican republic spain sri lanka ireland qatar kazakhstan hong kong fiji iran estonia netherlands mongolia malaysia chile saudi arabia iraq israel kuwait nigeria japan belgium china angola singapore thailand south korea taiwan philippines brazil canada samoa norway portugal indonesia kenya australia",
   },
   {
     code: "THB",
@@ -61,11 +54,53 @@ const CURRENCY_METADATA: Currency[] = [
     searchTerms: "aed uae dirham dubai abu dhabi sharjah ajman fujairah ras al khaimah umm al quwain united arab emirates",
   },
   {
-    code: "USD",
-    name: "US Dollar",
+    code: "EUR",
+    name: "Euro",
     popular: true,
-    rightLabel: "USA, Maldives + 170 countries",
-    searchTerms: "usd us dollar usa america united states maldives new york los angeles chicago houston phoenix philadelphia san antonio san diego dallas san jose austin jacksonville fort worth columbus san francisco charlotte indianapolis seattle denver washington nashville new zealand switzerland guatemala micronesia colombia mexico austria ghana hungary denmark sweden iceland afghanistan dominican republic spain sri lanka ireland qatar kazakhstan hong kong fiji iran estonia netherlands mongolia malaysia chile saudi arabia iraq israel kuwait nigeria japan belgium china angola singapore thailand south korea taiwan philippines brazil canada samoa norway portugal indonesia kenya australia",
+    rightLabel: "France, Germany + 45 countries",
+    searchTerms: "eur euro france germany italy spain europe london paris rome berlin amsterdam barcelona albania andorra armenia austria azerbaijan belarus belgium bosnia herzegovina bulgaria croatia cyprus czech republic denmark estonia finland georgia greece hungary iceland ireland kosovo latvia liechtenstein lithuania luxembourg malta moldova monaco montenegro netherlands north macedonia norway poland portugal romania san marino serbia slovakia slovenia sweden switzerland ukraine vatican city moscow saint petersburg madrid kyiv bucharest minsk budapest hamburg warsaw vienna munich milan prague sofia brussels birmingham manchester naples stockholm copenhagen zagreb lisbon dublin marseille kazan katowice athens frankfurt helsinki lyon valencia oporto glasgow seville krakow bremen gothenburg toulouse vilnius turin palermo rotterdam european union",
+  },
+  {
+    code: "SGD",
+    name: "Singapore Dollar",
+    popular: true,
+    rightLabel: "Singapore",
+    searchTerms: "sgd singapore dollar sing jurong east woodlands tampines changi bukit timah marina bay sentosa orchard road sing dollar",
+  },
+  {
+    code: "MYR",
+    name: "Malaysian Ringgit",
+    popular: true,
+    rightLabel: "Malaysia",
+    searchTerms: "myr malaysian ringgit malaysia kuala lumpur langkawi penang",
+  },
+  {
+    code: "IDR",
+    name: "Indonesian Rupiah",
+    popular: true,
+    rightLabel: "Indonesia",
+    searchTerms: "idr indonesian rupiah indonesia bali jakarta",
+  },
+  {
+    code: "GBP",
+    name: "British Pound",
+    popular: true,
+    rightLabel: "United Kingdom (UK)",
+    searchTerms: "gbp british pound uk united kingdom britain england london birmingham glasgow manchester edinburgh liverpool bristol sheffield leeds newcastle cardiff belfast nottingham southampton leicester aberdeen plymouth derby swansea sterling pound sterling",
+  },
+  {
+    code: "JPY",
+    name: "Japanese Yen",
+    popular: true,
+    rightLabel: "Japan",
+    searchTerms: "jpy japanese yen japan tokyo yokohama osaka nagoya sapporo kobe kyoto fukuoka kawasaki hiroshima sendai",
+  },
+  {
+    code: "VND",
+    name: "Vietnamese Dong",
+    popular: true,
+    rightLabel: "Vietnam",
+    searchTerms: "vnd vietnam dong hanoi ho chi minh city saigon da nang ha long bay",
   },
   {
     code: "AUD",
@@ -94,13 +129,6 @@ const CURRENCY_METADATA: Currency[] = [
     popular: false,
     rightLabel: "Brazil",
     searchTerms: "brl brazilian real brazil rio de janeiro são paulo sao paulo",
-  },
-  {
-    code: "GBP",
-    name: "British Pound",
-    popular: false,
-    rightLabel: "United Kingdom (UK)",
-    searchTerms: "gbp british pound uk united kingdom britain england london birmingham glasgow manchester edinburgh liverpool bristol sheffield leeds newcastle cardiff belfast nottingham southampton leicester aberdeen plymouth derby swansea sterling pound sterling",
   },
   {
     code: "CAD",
@@ -145,25 +173,11 @@ const CURRENCY_METADATA: Currency[] = [
     searchTerms: "hkd hong kong dollar hk dollar",
   },
   {
-    code: "IDR",
-    name: "Indonesian Rupiah",
-    popular: false,
-    rightLabel: "Indonesia",
-    searchTerms: "idr indonesian rupiah indonesia bali jakarta",
-  },
-  {
     code: "ILS",
     name: "Israeli Shekel",
     popular: false,
     rightLabel: "Israel",
     searchTerms: "ils israeli shekel israel tel aviv jerusalem",
-  },
-  {
-    code: "JPY",
-    name: "Japanese Yen",
-    popular: false,
-    rightLabel: "Japan",
-    searchTerms: "jpy japanese yen japan tokyo yokohama osaka nagoya sapporo kobe kyoto fukuoka kawasaki hiroshima sendai",
   },
   {
     code: "KES",
@@ -192,13 +206,6 @@ const CURRENCY_METADATA: Currency[] = [
     popular: false,
     rightLabel: "Macau",
     searchTerms: "mop macau pataca casinos",
-  },
-  {
-    code: "MYR",
-    name: "Malaysian Ringgit",
-    popular: false,
-    rightLabel: "Malaysia",
-    searchTerms: "myr malaysian ringgit malaysia kuala lumpur langkawi penang",
   },
   {
     code: "MVR",
@@ -304,13 +311,6 @@ const CURRENCY_METADATA: Currency[] = [
     popular: false,
     rightLabel: "Turkey",
     searchTerms: "try turkish lira turkey istanbul antalya cappadocia",
-  },
-  {
-    code: "VND",
-    name: "Vietnamese Dong",
-    popular: false,
-    rightLabel: "Vietnam",
-    searchTerms: "vnd vietnam dong hanoi ho chi minh city saigon da nang ha long bay",
   },
 ];
 
@@ -418,7 +418,7 @@ export function CurrencySelector({
             {otherCurrencies.length > 0 && (
               <>
                 <div className="h-px bg-gray-100 mx-2 my-1" />
-                <CommandGroup heading="Other Currencies">
+                <CommandGroup heading="All Currencies">
                   {otherCurrencies.map((currency) => (
                     <CommandItem
                       key={currency.code}
