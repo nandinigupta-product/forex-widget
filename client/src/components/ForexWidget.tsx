@@ -1,13 +1,13 @@
 import * as React from "react";
 import { motion } from "framer-motion";
-import { ArrowRight, RefreshCw, Zap, Shield, TrendingDown, Clock, Timer, Truck, ChevronDown, IndianRupee, CreditCard, Banknote, Tag, BadgePercent, Copy, Check } from "lucide-react";
+import { ArrowRight, RefreshCw, Zap, Shield, TrendingDown, Clock, Timer, Truck, ChevronDown, IndianRupee, CreditCard, Banknote, Tag, BadgePercent, Copy, Check, MessageCircle } from "lucide-react";
 import { useLocation, useSearch } from "wouter";
 import { useToast } from "@/hooks/use-toast";
 import { useRates, useCreateLead, useBetterRate } from "@/hooks/use-forex";
 
 import { Button } from "@/components/ui/button";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { CitySelector } from "./CitySelector";
+import { CurrencySelector } from "./CurrencySelector";
 import deliveryIcon from "@assets/image_1770969428621.png";
 
 const CARD_MIN_LOAD: Record<string, string> = {
@@ -404,28 +404,12 @@ export function ForexWidget() {
 
             <div>
               <label className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-1.5 block">Currency</label>
-              <Select value={currency} onValueChange={setCurrency} disabled={isLoadingRates}>
-                <SelectTrigger className="h-10 rounded-md bg-white border-gray-300 text-sm" data-testid="select-currency">
-                  <SelectValue>
-                    {selectedRate ? (
-                      <span className="flex items-center gap-2">
-                        {selectedRate.image && <img src={selectedRate.image} alt={selectedRate.currency} className="w-5 h-3.5 object-cover rounded-sm flex-shrink-0" />}
-                        <span className="truncate">{selectedRate.name}</span>
-                      </span>
-                    ) : "Select currency"}
-                  </SelectValue>
-                </SelectTrigger>
-                <SelectContent className="rounded-md border-gray-300 shadow-lg max-h-[280px]">
-                  {ratesData?.rates.map((rate) => (
-                    <SelectItem key={rate.currency} value={rate.currency} className="cursor-pointer py-2 text-sm">
-                      <span className="flex items-center gap-2">
-                        {rate.image && <img src={rate.image} alt={rate.currency} className="w-5 h-3.5 object-cover rounded-sm flex-shrink-0" />}
-                        <span className="truncate">{rate.name}</span>
-                      </span>
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <CurrencySelector
+                value={currency}
+                onChange={setCurrency}
+                rates={ratesData?.rates || []}
+                disabled={isLoadingRates}
+              />
             </div>
 
             <div>
@@ -577,6 +561,17 @@ export function ForexWidget() {
                   </>
                 )}
               </div>
+
+              <a
+                href={`https://wa.me/919212219191?text=${encodeURIComponent(`Hi, I want to buy ${amount ? Number(amount).toLocaleString('en-IN') : ''} ${currency} ${product === 'card' ? 'Forex Card' : 'Currency Notes'} in ${city || 'my city'}. Please share the best rate.`)}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center justify-center gap-2 w-full h-10 rounded-md text-[13px] font-semibold bg-[#25D366] hover:bg-[#1da851] text-white transition-colors border-0"
+                data-testid="button-whatsapp"
+              >
+                <MessageCircle className="w-4 h-4" />
+                Connect on WhatsApp
+              </a>
             </div>
 
             <div className="bg-orange-50 border border-orange-200 rounded-md px-3 py-2 text-center" data-testid="urgency-banner">
