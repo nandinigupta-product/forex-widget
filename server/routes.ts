@@ -17,6 +17,9 @@ export async function registerRoutes(
     try {
       const topCityOrder = ["MUM", "DEL", "BNG", "HYD", "PUN", "CHN", "GUR", "NOI", "KOL"];
 
+      const cardServiceableCodes = new Set(["AHM","BNG","CHA","CHN","DEL","FAR","GHZ","GUR","HYD","JAI","KNP","KOL","LKO","MOH","MUM","NOI","PCK","PUN"]);
+      const notesServiceableCodes = new Set(["AGR","AHM","AMR","ANA","AUR","BAR","BHB","BHP","BNG","CHA","CHN","COI","CUTT","DEH","DEL","FAR","GHZ","GNO","GOA","GUR","GWH","GWL","HSR","HYD","IND","JAB","JAI","JAL","JAM","JOD","KNP","KOC","KOL","KOT","KPR","KRN","KZH","LDH","LKO","MAD","MNG","MOH","MUM","MYS","NAG","NOI","NSK","NVM","NWN","PAT","PCK","PNV","PTL","PUN","RAI","RAN","RJK","SAL","SUR","THA","THI","UDP","VAD","VAR","VIJ","VSK","WRG"]);
+
       const allCities: Record<string, { name: string; aliases: string[] }> = {
         "MUM": { name: "Mumbai", aliases: ["Bombay", "Bambai", "Mumbai Suburban"] },
         "DEL": { name: "Delhi", aliases: ["New Delhi", "NCR Delhi", "Dilli"] },
@@ -257,6 +260,8 @@ export async function registerRoutes(
         name: details.name,
         aliases: details.aliases,
         isTopCity: topCityOrder.includes(code),
+        serviceableCard: cardServiceableCodes.has(code),
+        serviceableNotes: notesServiceableCodes.has(code),
       }));
 
       citiesList.sort((a, b) => {

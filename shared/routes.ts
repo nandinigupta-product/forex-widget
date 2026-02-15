@@ -29,6 +29,8 @@ export const api = {
           aliases: z.array(z.string()),
           icon: z.string().optional(),
           isTopCity: z.boolean().optional(),
+          serviceableCard: z.boolean().optional(),
+          serviceableNotes: z.boolean().optional(),
         })),
       },
     },

@@ -21,13 +21,29 @@ interface CitySelectorProps {
   value: string;
   onChange: (value: string) => void;
   compact?: boolean;
+  product?: "card" | "notes";
 }
 
-export function CitySelector({ value, onChange, compact }: CitySelectorProps) {
+export function CitySelector({ value, onChange, compact, product }: CitySelectorProps) {
   const [open, setOpen] = React.useState(false);
-  const { data: cities = [], isLoading } = useCities();
+  const { data: allCities = [], isLoading } = useCities();
 
-  const selectedCity = cities.find((city) => city.code === value);
+  const cities = React.useMemo(() => {
+    if (!product) return allCities;
+    return allCities.filter((c) =>
+      product === "card" ? c.serviceableCard : c.serviceableNotes
+    );
+  }, [allCities, product]);
+
+  const selectedCity = allCities.find((city) => city.code === value);
+  const isSelectedCityServiceable = cities.some((c) => c.code === value);
+
+  React.useEffect(() => {
+    if (cities.length > 0 && value && !isSelectedCityServiceable) {
+      const firstTop = cities.find((c) => c.isTopCity);
+      onChange(firstTop ? firstTop.code : cities[0].code);
+    }
+  }, [cities, value, isSelectedCityServiceable, onChange]);
 
   const topCities = cities.filter((c) => c.isTopCity);
   const otherCities = cities.filter((c) => !c.isTopCity);

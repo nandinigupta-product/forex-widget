@@ -400,7 +400,7 @@ export function ForexWidget() {
                   {deliveryTat.text}
                 </span>
               </div>
-              <CitySelector value={city} onChange={setCity} compact />
+              <CitySelector value={city} onChange={setCity} compact product={product === "card" ? "card" : "notes"} />
             </div>
 
             <div>
