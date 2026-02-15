@@ -24,6 +24,19 @@ interface CitySelectorProps {
   product?: "card" | "notes";
 }
 
+function cityFilter(value: string, search: string): number {
+  const v = value.toLowerCase();
+  const s = search.toLowerCase().trim();
+  if (!s) return 1;
+  const parts = v.split(/\s+/);
+  for (const part of parts) {
+    if (part === s) return 1;
+    if (part.startsWith(s)) return 0.8;
+  }
+  if (v.includes(s)) return 0.6;
+  return 0;
+}
+
 export function CitySelector({ value, onChange, compact, product }: CitySelectorProps) {
   const [open, setOpen] = React.useState(false);
   const { data: allCities = [], isLoading } = useCities();
@@ -62,7 +75,7 @@ export function CitySelector({ value, onChange, compact, product }: CitySelector
           </button>
         </PopoverTrigger>
         <PopoverContent className="w-[280px] p-0 rounded-md shadow-lg border-gray-200" align="end">
-          <Command className="rounded-md">
+          <Command className="rounded-md" filter={cityFilter}>
             <CommandInput placeholder="Search city..." className="h-10 text-sm" />
             <CommandList className="max-h-[260px] scrollbar-thin">
               <CommandEmpty>No city found.</CommandEmpty>
@@ -147,7 +160,7 @@ export function CitySelector({ value, onChange, compact, product }: CitySelector
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-[320px] p-0 rounded-md shadow-lg border-gray-200" align="start">
-        <Command className="rounded-md">
+        <Command className="rounded-md" filter={cityFilter}>
           <CommandInput placeholder="Search city..." className="h-10 text-sm" />
           <CommandList className="max-h-[260px] scrollbar-thin">
             <CommandEmpty>No city found.</CommandEmpty>
