@@ -398,7 +398,7 @@ export async function registerRoutes(
         })
       });
 
-      const discountCode = bmfResponse.headers.get('response_token') || null;
+      let discountCode = bmfResponse.headers.get('response_token') || null;
 
       let flatDiscount = 0;
       let totalAmount = 0;
@@ -407,15 +407,19 @@ export async function registerRoutes(
       try {
         const bmfData: any = await bmfResponse.json();
 
-        const discounts: any[] = Array.isArray(bmfData?.betterRateDiscounts)
-          ? bmfData.betterRateDiscounts
-          : [];
+        const result = bmfData?.result || bmfData;
+        const discounts: any[] = Array.isArray(result?.betterRateDiscounts)
+          ? result.betterRateDiscounts
+          : (Array.isArray(bmfData?.betterRateDiscounts) ? bmfData.betterRateDiscounts : []);
 
         if (discounts.length > 0) {
           const disc = discounts[0];
           flatDiscount = parseFloat(disc.flat_discount ?? disc.margin_value ?? 0);
           totalAmount = parseFloat(disc.total_amount ?? 0);
           grandTotal = parseFloat(disc.grand_total ?? 0);
+          if (!discountCode && disc.better_rate_key) {
+            discountCode = disc.better_rate_key;
+          }
         }
       } catch {
         if (input.product === "CN") {
@@ -431,7 +435,7 @@ export async function registerRoutes(
       }
 
       res.json({
-        discountCode: flatDiscount > 0 ? discountCode : null,
+        discountCode: flatDiscount > 0 ? (discountCode || "BMFRATE") : null,
         flatDiscount,
         originalRate,
         totalAmount: totalAmount > 0 ? totalAmount : originalRate * input.amount,
