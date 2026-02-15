@@ -406,23 +406,18 @@ export async function registerRoutes(
 
       try {
         const bmfData: any = await bmfResponse.json();
-        if (bmfData?.result) {
-          const resultStr = JSON.stringify(bmfData.result);
-          const copMatch = resultStr.match(/"flat_discount"\s*:\s*([\d.]+)/);
-          if (copMatch) {
-            flatDiscount = parseFloat(copMatch[1]);
-          }
-          const totalMatch = resultStr.match(/"total_amount"\s*:\s*([\d.]+)/);
-          if (totalMatch) {
-            totalAmount = parseFloat(totalMatch[1]);
-          }
-          const grandMatch = resultStr.match(/"grand_total"\s*:\s*([\d.]+)/);
-          if (grandMatch) {
-            grandTotal = parseFloat(grandMatch[1]);
-          }
+
+        const discounts: any[] = Array.isArray(bmfData?.betterRateDiscounts)
+          ? bmfData.betterRateDiscounts
+          : [];
+
+        if (discounts.length > 0) {
+          const disc = discounts[0];
+          flatDiscount = parseFloat(disc.flat_discount ?? disc.margin_value ?? 0);
+          totalAmount = parseFloat(disc.total_amount ?? 0);
+          grandTotal = parseFloat(disc.grand_total ?? 0);
         }
       } catch {
-        // Response body might be empty for some requests - fall back to rate card combo
         if (input.product === "CN") {
           const comboRate = currencyRate.bcn_combo ? parseFloat(currencyRate.bcn_combo) : 0;
           if (comboRate > 0 && comboRate < originalRate) {
