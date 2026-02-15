@@ -1,6 +1,6 @@
 import * as React from "react";
 import { motion } from "framer-motion";
-import { ArrowRight, RefreshCw, Zap, Shield, TrendingDown, Clock, Timer, Truck, ChevronDown, IndianRupee, CreditCard, Banknote, Tag, BadgePercent, Copy, Check, MessageCircle } from "lucide-react";
+import { ArrowRight, RefreshCw, Zap, Shield, TrendingDown, Clock, Timer, Truck, ChevronDown, IndianRupee, CreditCard, Banknote, Tag, BadgePercent, Copy, Check } from "lucide-react";
 import { useLocation, useSearch } from "wouter";
 import { useToast } from "@/hooks/use-toast";
 import { useRates, useCreateLead, useBetterRate } from "@/hooks/use-forex";
@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { CitySelector } from "./CitySelector";
 import { CurrencySelector } from "./CurrencySelector";
 import deliveryIcon from "@assets/image_1770969428621.png";
+import whatsappLogo from "@assets/WhatsApp_Logo_green.svg_1771165449894.png";
 
 const CARD_MIN_LOAD: Record<string, string> = {
   USD: "Start with just 10 USD",
@@ -518,16 +519,16 @@ export function ForexWidget() {
             )}
 
             <div className="space-y-2">
-              <div className="flex flex-col min-[360px]:flex-row gap-2.5">
+              <div className="flex flex-row gap-3 items-center">
                 <motion.div
                   animate={pulseButton ? { scale: [1, 1.02, 1] } : {}}
                   transition={{ duration: 0.6, ease: "easeInOut" }}
-                  className="flex-[3] min-w-0"
+                  className="flex-1 min-w-0"
                 >
                   <Button
                     type="submit"
                     disabled={isPending || !amount || !activeRate}
-                    className="w-full h-11 rounded-md text-[14px] font-bold bg-[#FFB427] hover:bg-[#e6a223] text-white uppercase tracking-wider border-0 shadow-none ring-0 outline-none focus:ring-0 focus-visible:ring-0"
+                    className="w-full h-11 rounded-md text-[14px] font-bold bg-[#FFB427] hover:bg-[#e6a223] text-white uppercase tracking-wider border-0 shadow-none ring-0 outline-none focus:ring-0 focus-visible:ring-0 whitespace-nowrap overflow-hidden text-ellipsis"
                     data-testid="button-submit"
                   >
                     {isPending ? (
@@ -549,11 +550,11 @@ export function ForexWidget() {
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label="Chat on WhatsApp"
-                  className="flex-1 flex items-center justify-center gap-1.5 h-11 rounded-md text-[12px] font-semibold text-[#25D366] border border-[#25D366]/40 hover:bg-[#25D366]/5 transition-colors"
+                  className="flex-shrink-0 h-11 w-11 min-[420px]:w-auto min-[420px]:px-4 rounded-md flex items-center justify-center gap-1.5 text-[12px] font-semibold text-[#25D366] border border-[#25D366]/40 hover:bg-[#25D366]/5 transition-colors"
                   data-testid="button-whatsapp"
                 >
-                  <MessageCircle className="w-4 h-4 flex-shrink-0" />
-                  <span className="whitespace-nowrap">WhatsApp</span>
+                  <img src={whatsappLogo} alt="" className="w-5 h-5 flex-shrink-0" />
+                  <span className="hidden min-[420px]:inline whitespace-nowrap">WhatsApp</span>
                 </a>
               </div>
 
